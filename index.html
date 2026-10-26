@@ -76,7 +76,7 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
 .tb-title { grid-row: span 2; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 14px 16px; }
 .tb-title h1 { font-size: clamp(34px, 5.4vw, 54px); line-height: .95; letter-spacing: .01em; }
 .tb-title p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; }
-.tb-cell b { display: block; font-family: var(--f-mono); font-weight: 500; font-size: 15px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-cell b { display: block; font-family: var(--f-mono); font-weight: 500; font-size: 15px; margin-top: 2px; overflow-wrap: anywhere; }
 .tb-stats { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 !important; border-right: 0 !important; }
 .tblock > .tb-cell:nth-child(5) { border-right: 0; }
 .tblock > :last-child { border-bottom: 0; }
