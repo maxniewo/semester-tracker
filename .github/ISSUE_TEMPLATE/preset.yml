@@ -1,0 +1,24 @@
+name: Preset einreichen
+description: Teile dein Kurs-Setup, damit andere es in der Galerie übernehmen können.
+title: "Preset: "
+labels: ["preset"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Den Link füllt der Semester Tracker automatisch aus (Einrichten → Presets → In Galerie veröffentlichen).
+        Einfach absenden. Das Preset erscheint danach für alle in der Galerie.
+  - type: textarea
+    id: link
+    attributes:
+      label: Preset-Link
+      description: Der Teilen-Link aus dem Semester Tracker. Er enthält "#p=" gefolgt von einem langen Code.
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: Anmerkung
+      description: Optional, zum Beispiel für welchen Studiengang und welches Semester das Preset gedacht ist.
+    validations:
+      required: false

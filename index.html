@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Semester Tracker</title>
-<meta name="description" content="Verpasste Vorlesungen, Übungen und Serien im HS26 im Blick behalten.">
+<meta name="description" content="Verpasste Vorlesungen, Übungen und Serien im Semester im Blick behalten. Mit eigenen Kursen und teilbaren Presets.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Semester">
 <meta name="theme-color" content="#f3f5f6" media="(prefers-color-scheme: light)">
@@ -159,7 +159,7 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
 .week-h .count .d { color: var(--green); }
 .badge { font-family: var(--f-display); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .14em; color: var(--red);
   border: 2px solid var(--red); padding: 0 8px; transform: rotate(-4deg); display: inline-block; }
-.days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; }
+.days { display: grid; grid-template-columns: repeat(var(--nd, 5), minmax(0, 1fr)); gap: 0; }
 .day { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 0 8px; border-left: 1px dashed var(--hair); }
 .day:first-child { border-left: 0; padding-left: 0; }
 .day:last-child { padding-right: 0; }
@@ -244,6 +244,47 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
 .colophon { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-2);
   text-transform: uppercase; letter-spacing: .08em; border-top: 1px solid var(--line); margin: 0 -22px -26px; padding: 6px 22px; }
 
+
+/* Einrichten: Formulare, Kursliste, Presets */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 14px; }
+.fld { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.fld > span { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inp { border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 6px 8px; font-family: var(--f-body); font-size: 15px; min-width: 0; width: 100%; height: 36px; border-radius: 0; }
+.inp.mono { font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); }
+select.inp option { background: var(--sheet); color: var(--ink); }
+.hint { color: var(--ink-2); font-size: 13px; max-width: 76ch; margin: 0; }
+.note { border: 1px solid var(--green); color: var(--green); background: var(--green-soft); padding: 6px 10px; font-size: 14px; margin-bottom: 4px; }
+.err { border: 1px solid var(--red); color: var(--red); padding: 6px 10px; font-size: 14px; }
+.row { display: flex; gap: 8px 10px; flex-wrap: wrap; align-items: center; }
+.sub-h { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); display: flex; gap: 12px; align-items: baseline; }
+.linkbtn { border: 0; background: none; color: var(--blue); cursor: pointer; padding: 0; font: inherit; text-decoration: underline; text-transform: none; letter-spacing: 0; font-family: var(--f-body); font-size: 13px; }
+.crow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 9px 0; border-top: 1px solid var(--hair); }
+.crow:first-child { border-top: 0; }
+.crow .t { font-weight: 600; }
+.crow .sub { color: var(--ink-2); font-family: var(--f-mono); font-size: 12px; }
+.crow.off .t, .crow.off .sub { opacity: .5; }
+.check { width: 20px; height: 20px; margin: 0; accent-color: var(--blue); cursor: pointer; flex: none; }
+.editor { border: 1.5px solid var(--line); background: var(--fill); padding: 12px; margin: 8px 0; display: flex; flex-direction: column; gap: 12px; }
+.ev-row { display: grid; grid-template-columns: 1.3fr 1.1fr 1fr 1fr 1.6fr auto; gap: 6px; align-items: end; }
+.icon-btn { width: 36px; height: 36px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 15px; line-height: 1; }
+.icon-btn:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
+.btn.danger { border-color: var(--red); color: var(--red); margin-left: auto; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .4; pointer-events: none; }
+a.btn { text-decoration: none; color: var(--ink); display: inline-block; }
+a.btn.primary { color: var(--sheet); }
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; align-items: start; }
+.pcard { border: 1px solid var(--hair); padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.pcard.hl { border: 1.5px solid var(--line); background: var(--sheet); }
+.pcard h3 { font-size: 19px; overflow-wrap: anywhere; }
+.pcard .sub { color: var(--ink-2); font-family: var(--f-mono); font-size: 12px; overflow-wrap: anywhere; }
+.pcard .list { font-size: 13.5px; overflow-wrap: anywhere; }
+.stamp { font-family: var(--f-display); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--green); border: 1.5px solid var(--green); padding: 0 6px; display: inline-block; transform: rotate(-3deg); }
+.welcome { border: 1.5px solid var(--line); background: var(--sheet); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.welcome h2 { font-size: 26px; }
+.welcome p { margin: 0; max-width: 70ch; }
+#incoming:empty { display: none; }
+.colophon a { color: inherit; }
+.colophon .foot { font-size: inherit; text-transform: inherit; }
 @media (max-width: 760px) {
   body { padding-left: 10px; padding-right: 10px; }
   .wrap { padding: 0 12px 18px; gap: 20px; }
@@ -258,7 +299,7 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
   .stat:nth-child(2) { border-right: 0; }
   .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .tabs { align-self: stretch; }
-  .tab { flex: 1; justify-content: center; }
+  .tab { justify-content: center; }
   .days { grid-template-columns: 1fr; gap: 8px; }
   .day { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; align-items: start; padding: 0; border-left: 0; }
   .day-l { padding-top: 8px; flex-direction: column; gap: 0; }
@@ -267,6 +308,15 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
   .srow { grid-template-columns: 1fr; }
   .brow .btn .bl { display: none; }
   .brow .btn { padding: 4px 11px; font-size: 16px; }
+}
+@media (max-width: 760px) {
+  .tab { flex: 1 1 auto; padding: 9px 5px; font-size: 14px; gap: 5px; min-width: 0; letter-spacing: .03em; white-space: nowrap; }
+  .tab .n { font-size: 11px; }
+  .inp { font-size: 16px; }
+  .ev-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px; padding-bottom: 10px; border-bottom: 1px dashed var(--hair); }
+  .ev-row .fld:nth-child(2), .ev-row .fld:nth-child(4) { grid-column: 2 / span 2; }
+  .ev-row .fld:nth-child(5) { grid-column: 1 / span 2; }
+  .crow .btn { padding: 5px 8px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 </style>
@@ -280,153 +330,243 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
       <h1>Semester Tracker</h1>
       <p>Vorlesungen nachholen, Serien abhaken.</p>
     </div>
-    <div class="tb-cell"><span class="tb-lbl">Semester</span><b>HS 2026</b></div>
-    <div class="tb-cell"><span class="tb-lbl">Blatt</span><b id="tb-sheet">01 / 14</b></div>
+    <div class="tb-cell"><span class="tb-lbl">Semester</span><b id="tb-sem">&nbsp;</b></div>
+    <div class="tb-cell"><span class="tb-lbl">Blatt</span><b id="tb-sheet">&nbsp;</b></div>
     <div class="tb-cell"><span class="tb-lbl">Datum</span><b id="tb-date">&nbsp;</b></div>
-    <div class="tb-cell"><span class="tb-lbl">Studiengang</span><b>D-MAVT · ETH</b></div>
+    <div class="tb-cell"><span class="tb-lbl">Studiengang</span><b id="tb-prog">&nbsp;</b></div>
     <div class="tb-stats" id="stats"></div>
   </header>
 
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-lec" data-tab="lec" type="button">Vorlesungen <span class="n" id="n-lec"></span></button>
     <button class="tab" role="tab" id="tab-ser" data-tab="ser" type="button">Serien <span class="n" id="n-ser"></span></button>
+    <button class="tab" role="tab" id="tab-setup" data-tab="setup" type="button">Einrichten</button>
   </div>
 
   <!-- Vorlesungen -->
   <section class="panel" id="panel-lec" role="tabpanel" aria-labelledby="tab-lec">
-    <div class="card">
-      <div class="card-top">
-        <h2><span class="mk">A</span>Noch nachzuholen</h2>
-        <div class="filters" id="filters-lec"></div>
-      </div>
-      <div class="blist" id="blist-lec"></div>
+    <div class="welcome" id="empty-lec" hidden>
+      <h2>Noch nichts eingerichtet</h2>
+      <p>Hier erscheinen deine Wochen, sobald du Kurse hast. Übernimm ein Preset oder leg deine Kurse selbst an.</p>
+      <div class="row"><button class="btn primary" type="button" data-goto="setup">Einrichten</button></div>
     </div>
-    <div class="weeks">
-      <div class="sec-head">
-        <h2><span class="mk">B</span>Alle Wochen</h2>
-        <div class="legend">
-          <span>Tippen wechselt:</span>
-          <span class="sw"><i class="dot"></i>besucht</span>
-          <span class="sw"><i class="dot m"></i>verpasst</span>
-          <span class="sw"><i class="dot d"></i>nachgeholt</span>
-          <button class="btn" id="jump" type="button">Zur aktuellen Woche</button>
+    <div class="panel" id="main-lec">
+      <div class="card">
+        <div class="card-top">
+          <h2><span class="mk">A</span>Noch nachzuholen</h2>
+          <div class="filters" id="filters-lec"></div>
         </div>
+        <div class="blist" id="blist-lec"></div>
       </div>
-      <div id="weeks" class="weeks"></div>
+      <div class="weeks">
+        <div class="sec-head">
+          <h2><span class="mk">B</span>Alle Wochen</h2>
+          <div class="legend">
+            <span>Tippen wechselt:</span>
+            <span class="sw"><i class="dot"></i>besucht</span>
+            <span class="sw"><i class="dot m"></i>verpasst</span>
+            <span class="sw"><i class="dot d"></i>nachgeholt</span>
+            <button class="btn" id="jump" type="button">Zur aktuellen Woche</button>
+          </div>
+        </div>
+        <div id="weeks" class="weeks"></div>
+      </div>
     </div>
   </section>
 
   <!-- Serien -->
   <section class="panel" id="panel-ser" role="tabpanel" aria-labelledby="tab-ser" hidden>
-    <div class="card">
-      <div class="card-top">
-        <h2><span class="mk">A</span>Offene Serien</h2>
-        <div class="filters" id="filters-ser"></div>
-      </div>
-      <div class="blist" id="blist-ser"></div>
+    <div class="welcome" id="empty-ser" hidden>
+      <h2>Noch nichts eingerichtet</h2>
+      <p>Hier erscheinen die Serien deiner Kurse. Übernimm ein Preset oder leg deine Kurse selbst an.</p>
+      <div class="row"><button class="btn primary" type="button" data-goto="setup">Einrichten</button></div>
     </div>
-    <div class="sec-head">
-      <h2><span class="mk">B</span>Alle Serien</h2>
-      <div class="legend">
-        <span>Tippen wechselt:</span>
-        <span class="sw"><i class="dot"></i>noch nicht gemacht</span>
-        <span class="sw"><i class="dot m"></i>überfällig</span>
-        <span class="sw"><i class="dot w"></i>in Bearbeitung</span>
-        <span class="sw"><i class="dot d"></i>erledigt</span>
+    <div class="panel" id="main-ser">
+      <div class="card">
+        <div class="card-top">
+          <h2><span class="mk">A</span>Offene Serien</h2>
+        </div>
+        <div class="blist" id="blist-ser"></div>
       </div>
+      <div class="sec-head">
+        <h2><span class="mk">B</span>Alle Serien</h2>
+        <div class="legend">
+          <span>Tippen wechselt:</span>
+          <span class="sw"><i class="dot"></i>noch nicht gemacht</span>
+          <span class="sw"><i class="dot m"></i>überfällig</span>
+          <span class="sw"><i class="dot w"></i>in Bearbeitung</span>
+          <span class="sw"><i class="dot d"></i>erledigt</span>
+        </div>
+      </div>
+      <div class="courses" id="courses"></div>
     </div>
-    <div class="courses" id="courses"></div>
   </section>
 
-  <!-- Sync & Daten -->
-  <section class="card" id="sync-card">
-    <div class="card-top">
-      <h2><span class="mk">C</span>Sync &amp; Daten</h2>
-      <span class="foot"><i class="led" id="led"></i><span id="saveinfo">Lokal gespeichert</span></span>
-    </div>
-    <div class="sync" id="sync-setup">
-      <ol>
-        <li>Auf GitHub einen Token mit dem Recht <b>gist</b> erstellen: <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Semester-Tracker" target="_blank" rel="noopener">Token erstellen</a> (Ablaufdatum z.&nbsp;B. „No expiration“ oder Semesterende).</li>
-        <li>Token hier einfügen und verbinden. Die Seite legt einen privaten Gist an und speichert dort deine Einträge.</li>
-        <li>Auf jedem weiteren Gerät denselben Token einfügen. Fertig, alles bleibt synchron.</li>
-      </ol>
-      <div class="sync-row">
-        <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub-Token">
-        <button class="btn primary" id="connect" type="button">Verbinden</button>
+  <!-- Einrichten -->
+  <section class="panel" id="panel-setup" role="tabpanel" aria-labelledby="tab-setup" hidden>
+    <div class="welcome" id="welcome" hidden>
+      <h2>Willkommen</h2>
+      <p>Der Semester Tracker zeigt dir jede Woche deines Semesters. Du markierst, welche Vorlesungen und Übungen du verpasst hast, und hakst ab, was du nachgeholt hast. Dazu kommen die Serien pro Fach.</p>
+      <p>Starte mit einem Preset aus der Galerie oder leg deine Kurse selbst an. Alles wird nur in deinem Browser gespeichert, ein Konto brauchst du nicht.</p>
+      <div class="row">
+        <button class="btn primary" id="goto-presets" type="button">Preset auswählen</button>
+        <button class="btn" id="start-empty" type="button">Eigene Kurse anlegen</button>
       </div>
     </div>
-    <div class="sync-row" id="sync-on" hidden>
-      <button class="btn" id="sync-now" type="button">Jetzt synchronisieren</button>
-      <button class="btn" id="disconnect" type="button">Sync auf diesem Gerät trennen</button>
+    <div id="incoming"></div>
+
+    <div class="card" id="sec-sem">
+      <div class="card-top"><h2><span class="mk">A</span>Semester</h2></div>
+      <div class="form-grid">
+        <label class="fld"><span>Semester</span><input class="inp" id="sem-name" type="text" maxlength="20" placeholder="z. B. HS26"></label>
+        <label class="fld"><span>Studiengang</span><input class="inp" id="sem-prog" type="text" maxlength="40" placeholder="z. B. Maschinenbau"></label>
+        <label class="fld"><span>Erster Tag</span><input class="inp" id="sem-start" type="date"></label>
+        <label class="fld"><span>Anzahl Wochen</span><input class="inp" id="sem-weeks" type="number" min="1" max="30" inputmode="numeric" placeholder="14"></label>
+      </div>
+      <p class="hint" id="sem-info"></p>
     </div>
-    <div class="sync-row">
-      <button class="btn" id="export" type="button">Backup herunterladen</button>
-      <button class="btn" id="import-btn" type="button">Backup importieren</button>
-      <input id="import" type="file" accept="application/json,.json" hidden>
+
+    <div class="card" id="sec-courses">
+      <div class="card-top">
+        <h2><span class="mk">B</span>Kurse</h2>
+        <button class="btn" id="add-course" type="button">+ Kurs hinzufügen</button>
+      </div>
+      <p class="hint">Der Haken bestimmt, ob du einen Kurs belegst. Abgewählte Kurse verschwinden aus Wochen und Serien, ihre Einträge bleiben gespeichert.</p>
+      <div class="blist" id="setup-courses"></div>
+    </div>
+
+    <div class="card" id="sec-presets">
+      <div class="card-top"><h2><span class="mk">C</span>Presets</h2></div>
+      <p class="hint">Ein Preset ist ein fertiges Setup aus Semesterdaten und Kursen, zum Beispiel für einen Studiengang und ein Semester. Übernimm eins und wähl danach unter Kurse ab, was du nicht belegst.</p>
+      <div class="sub-h"><span>Galerie</span><button class="linkbtn" id="gal-reload" type="button">neu laden</button></div>
+      <div class="pgrid" id="gallery"></div>
+      <p class="hint" id="gal-info"></p>
+      <div class="sub-h"><span>Mein Setup teilen</span></div>
+      <div class="form-grid">
+        <label class="fld"><span>Name des Presets</span><input class="inp" id="sh-name" type="text" maxlength="80" placeholder="z. B. Maschinenbau · 3. Semester"></label>
+        <label class="fld"><span>Hochschule</span><input class="inp" id="sh-uni" type="text" maxlength="60" placeholder="z. B. ETH Zürich"></label>
+      </div>
+      <div class="row">
+        <button class="btn" id="sh-copy" type="button">Link kopieren</button>
+        <a class="btn primary" id="sh-publish" target="_blank" rel="noopener">In Galerie veröffentlichen</a>
+      </div>
+      <input class="inp mono" id="sh-link" type="text" readonly aria-label="Link zu deinem Preset">
+      <p class="hint">Geteilt werden nur die Semesterdaten und deine aktiven Kurse, keine Einträge. Den Link kannst du direkt verschicken. Veröffentlichen öffnet GitHub mit ausgefülltem Formular, dafür brauchst du ein GitHub-Konto. Nach dem Absenden erscheint das Preset für alle in der Galerie.</p>
+    </div>
+
+    <div class="card" id="sync-card">
+      <div class="card-top">
+        <h2><span class="mk">D</span>Sync &amp; Daten</h2>
+        <span class="foot"><i class="led" id="led"></i><span id="saveinfo">Lokal gespeichert</span></span>
+      </div>
+      <div class="sync" id="sync-setup">
+        <p class="hint">Ohne Sync liegen deine Einträge nur in diesem Browser. Für mehrere Geräte kannst du sie in einem privaten Gist auf deinem GitHub-Konto speichern.</p>
+        <ol>
+          <li>Auf GitHub einen Token mit dem Recht <b>gist</b> erstellen: <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Semester-Tracker" target="_blank" rel="noopener">Token erstellen</a> (Ablaufdatum z.&nbsp;B. „No expiration“ oder Semesterende).</li>
+          <li>Token hier einfügen und verbinden. Die Seite legt einen privaten Gist an und speichert dort deine Einträge.</li>
+          <li>Auf jedem weiteren Gerät denselben Token einfügen. Fertig, alles bleibt synchron.</li>
+        </ol>
+        <div class="sync-row">
+          <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub-Token">
+          <button class="btn primary" id="connect" type="button">Verbinden</button>
+        </div>
+      </div>
+      <div class="sync-row" id="sync-on" hidden>
+        <button class="btn" id="sync-now" type="button">Jetzt synchronisieren</button>
+        <button class="btn" id="disconnect" type="button">Sync auf diesem Gerät trennen</button>
+      </div>
+      <div class="sync-row">
+        <button class="btn" id="export" type="button">Backup herunterladen</button>
+        <button class="btn" id="import-btn" type="button">Backup importieren</button>
+        <input id="import" type="file" accept="application/json,.json" hidden>
+      </div>
     </div>
   </section>
-  <div class="colophon" aria-hidden="true"><span>Massstab 1:1</span><span>Alle Masse in Wochen</span><span>Gez. Max</span></div>
+
+  <div class="colophon">
+    <span>Massstab 1:1</span>
+    <span class="foot"><i class="led" id="led2"></i><span id="sync-short">Sync aus</span></span>
+    <a id="repo-link" href="https://github.com/maxniewo/semester-tracker" target="_blank" rel="noopener">Quellcode auf GitHub</a>
+  </div>
 </div>
 
 <script>
 (function () {
   "use strict";
-  // ================= Semester & Stundenplan (HS 2026, ohne Innovationsprojekt) =================
-  const FIRST_KW = 38, LAST_KW = 51, NWEEKS = LAST_KW - FIRST_KW + 1;   // 14.09. bis 18.12.2026
-  const FIRST_MONDAY = new Date(2026, 8, 14);
-  const COURSES = [
-    { c: "mech",   name: "Mechanics III",            series: true },
-    { c: "ana",    name: "Analysis III",             series: true },
-    { c: "thermo", name: "Thermodynamics I",         series: true },
-    { c: "cs",     name: "Control Systems I",        series: true },
-    { c: "ee",     name: "Electrical Engineering I", series: true },
-    { c: "macro",  name: "Macroeconomics",           series: false }
-  ];
-  const CNAME = Object.fromEntries(COURSES.map(x => [x.c, x.name]));
-  const SHORT = { mech: "Mech", ana: "Ana", thermo: "Thermo", cs: "Control", ee: "EE", macro: "Macro" };
-  const EVENTS = [
-    { id: "mech-v-mo", c: "mech",   k: "V", d: 0, s: "14:00", e: "16:00" },
-    { id: "ana-u",     c: "ana",    k: "U", d: 0, s: "Abend", e: "", flexText: "Mo Abend / Di" },
-    { id: "ee-u",      c: "ee",     k: "U", d: 1, s: "10:00", e: "12:00" },
-    { id: "macro-v",   c: "macro",  k: "V", d: 1, s: "16:00", e: "18:00" },
-    { id: "mech-v-mi", c: "mech",   k: "V", d: 2, s: "14:00", e: "16:00" },
-    { id: "cs-v",      c: "cs",     k: "V", d: 2, s: "16:00", e: "18:00" },
-    { id: "mech-u",    c: "mech",   k: "U", d: 3, s: "08:00", e: "10:00" },
-    { id: "thermo-v",  c: "thermo", k: "V", d: 3, s: "10:00", e: "12:00" },
-    { id: "ana-v",     c: "ana",    k: "V", d: 3, s: "14:00", e: "16:00" },
-    { id: "thermo-u",  c: "thermo", k: "U", d: 4, s: "08:00", e: "10:00" },
-    { id: "cs-u",      c: "cs",     k: "U", d: 4, s: "10:00", e: "12:00" },
-    { id: "ee-v",      c: "ee",     k: "V", d: 4, s: "14:00", e: "16:00" }
-  ];
-  const DAYS = ["Mo", "Di", "Mi", "Do", "Fr"];
+  // ================= Grundlagen =================
+  const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  const DAYS_LONG = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
   const MONTHS = ["Jan", "Feb", "März", "Apr", "Mai", "Juni", "Juli", "Aug", "Sep", "Okt", "Nov", "Dez"];
   const KIND = { V: "Vorlesung", U: "Übung" };
   const NEXT_MARK = (s) => s === "missed" ? "done" : s === "done" ? null : "missed";
   const NEXT_SER  = (s) => s === "wip" ? "done" : s === "done" ? null : "wip";
-
-  const dateOf = (kw, d) => { const x = new Date(FIRST_MONDAY); x.setDate(x.getDate() + (kw - FIRST_KW) * 7 + d); return x; };
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const pad = (n) => String(n).padStart(2, "0");
   const fmt = (dt) => dt.getDate() + ". " + MONTHS[dt.getMonth()];
+  const ymd = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   const now = new Date();
   const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const rawWeek = 1 + Math.floor((todayMid - FIRST_MONDAY) / (7 * 864e5));   // Semesterwoche 1..14
-  const curWeek = Math.min(NWEEKS, Math.max(1, rawWeek));
-  const curKw = FIRST_KW + curWeek - 1;
+  function parseDate(str) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(typeof str === "string" ? str : "");
+    if (!m) return null;
+    const d = new Date(+m[1], +m[2] - 1, +m[3]);
+    return isNaN(d) || d.getMonth() !== +m[2] - 1 ? null : d;
+  }
+  function mondayOf(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+  function isoWeek(d) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
+    return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
+  }
+  const newId = (p) => p + "-" + Math.random().toString(36).slice(2, 7);
+
+  // Repo, in dem diese Seite liegt (für Galerie und Veröffentlichen). Bei einem Fork auf GitHub Pages wird es aus der Adresse gelesen.
+  const REPO = (() => {
+    const m = /^([a-z0-9-]+)\.github\.io$/i.exec(location.hostname), seg = location.pathname.split("/").filter(Boolean)[0];
+    return m && seg ? m[1] + "/" + seg : "maxniewo/semester-tracker";
+  })();
+  const PAGE_URL = location.href.split("#")[0].split("?")[0];
+
+  // Das Setup, mit dem die Seite gestartet ist. Dient als eingebautes Preset und hält ältere Einträge gültig.
+  const LEGACY = {
+    v: 1, name: "Maschinenbau · 3. Semester", uni: "ETH Zürich", prog: "D-MAVT · ETH",
+    sem: { name: "HS26", start: "2026-09-14", weeks: 14 },
+    courses: [
+      { id: "mech", name: "Mechanics III", short: "Mech", series: true, ev: [
+        { id: "mech-v-mo", k: "V", d: 0, s: "14:00", e: "16:00", t: "" }, { id: "mech-v-mi", k: "V", d: 2, s: "14:00", e: "16:00", t: "" }, { id: "mech-u", k: "U", d: 3, s: "08:00", e: "10:00", t: "" }] },
+      { id: "ana", name: "Analysis III", short: "Ana", series: true, ev: [
+        { id: "ana-u", k: "U", d: 0, s: "", e: "", t: "Mo Abend / Di" }, { id: "ana-v", k: "V", d: 3, s: "14:00", e: "16:00", t: "" }] },
+      { id: "thermo", name: "Thermodynamics I", short: "Thermo", series: true, ev: [
+        { id: "thermo-v", k: "V", d: 3, s: "10:00", e: "12:00", t: "" }, { id: "thermo-u", k: "U", d: 4, s: "08:00", e: "10:00", t: "" }] },
+      { id: "cs", name: "Control Systems I", short: "Control", series: true, ev: [
+        { id: "cs-v", k: "V", d: 2, s: "16:00", e: "18:00", t: "" }, { id: "cs-u", k: "U", d: 4, s: "10:00", e: "12:00", t: "" }] },
+      { id: "ee", name: "Electrical Engineering I", short: "EE", series: true, ev: [
+        { id: "ee-u", k: "U", d: 1, s: "10:00", e: "12:00", t: "" }, { id: "ee-v", k: "V", d: 4, s: "14:00", e: "16:00", t: "" }] },
+      { id: "macro", name: "Macroeconomics", short: "Macro", series: false, ev: [
+        { id: "macro-v", k: "V", d: 1, s: "16:00", e: "18:00", t: "" }] }
+    ]
+  };
+  const LEGACY_AT = "2026-09-14T00:00:00.000Z";
+  const LEGACY_RE = /^(m:w\d+_(mech|ana|thermo|cs|ee|macro)-[a-z-]+|s:(mech|ana|thermo|cs|ee|macro):\d+|c:(mech|ana|thermo|cs|ee|macro))$/;
 
   // ================= Daten =================
-  // items: key -> { s, at, ... }  (s === null bedeutet zurückgesetzt; at = Zeitstempel für den Abgleich zwischen Geräten)
-  //   m:w39_ana-v  -> { s: "missed" | "done" | null }
-  //   s:mech:3     -> { s: "wip" | "done" | null }
-  //   c:mech       -> { start: 1..14, count: n | null }
-  const LS_DATA = "semester-tracker:data", LS_TOKEN = "semester-tracker:token", LS_GIST = "semester-tracker:gist", LS_TAB = "semester-tracker:tab";
+  // items: key -> { ..., at }   (at = Zeitstempel; beim Abgleich zwischen Geräten gewinnt pro Schlüssel der neuere Eintrag)
+  //   sem          -> { name, prog, start: "JJJJ-MM-TT" (Montag), weeks }
+  //   k:<kurs>     -> { name, short, on, series, ord, ev: [{ id, k: "V"|"U", d: 0..5, s, e, t }], del }
+  //   c:<kurs>     -> { start: Woche von Serie 1, count: Anzahl Serien | null }
+  //   m:w<kw>_<termin> -> { s: "missed" | "done" | null }   (kw = Kalenderwoche des Semesterstarts + Wochenindex)
+  //   s:<kurs>:<n> -> { s: "wip" | "done" | null }
+  const LS_DATA = "semester-tracker:data", LS_TOKEN = "semester-tracker:token", LS_GIST = "semester-tracker:gist",
+        LS_TAB = "semester-tracker:tab", LS_GAL = "semester-tracker:gallery", LS_SHARE = "semester-tracker:share";
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
     del(k) { try { localStorage.removeItem(k); } catch (e) {} }
   };
   let items = {};
-  try { const d = JSON.parse(ls.get(LS_DATA) || "{}"); items = (d && d.items) || {}; } catch (e) { items = {}; }
-  const saveLocal = () => ls.set(LS_DATA, JSON.stringify({ v: 2, items }));
+  try { const d = JSON.parse(ls.get(LS_DATA) || "{}"); items = (d && typeof d.items === "object" && d.items) || {}; } catch (e) { items = {}; }
+  const saveLocal = () => ls.set(LS_DATA, JSON.stringify({ v: 3, items }));
   const stamp = () => new Date().toISOString();
 
   function merge(a, b) {
@@ -436,75 +576,116 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
   }
   const canon = (o) => JSON.stringify(Object.keys(o).sort().map(k => [k, o[k]]));
 
+  // Einträge aus der Zeit vor dem Kurs-Editor bekommen das ursprüngliche Setup, damit sie sichtbar bleiben.
+  function ensureLegacy() {
+    if (items.sem) return false;
+    if (!Object.keys(items).some(k => LEGACY_RE.test(k))) return false;
+    items.sem = { name: LEGACY.sem.name, prog: LEGACY.prog, start: LEGACY.sem.start, weeks: LEGACY.sem.weeks, at: LEGACY_AT };
+    LEGACY.courses.forEach((c, i) => {
+      if (!items["k:" + c.id]) items["k:" + c.id] = { name: c.name, short: c.short, on: true, series: c.series, ord: i, ev: c.ev, at: LEGACY_AT };
+    });
+    return true;
+  }
+  if (ensureLegacy()) saveLocal();
+
+  // Abgeleiteter Zustand, wird vor jedem Zeichnen neu berechnet
+  let SEM = null, START = null, NWEEKS = 14, BASE = 0, curWeek = 1, NDAYS = 5;
+  let C_ALL = [], C_ACT = [], CO = {}, EVENTS = [], EV = {};
+  function recompute() {
+    const s = items.sem;
+    SEM = s && typeof s === "object" && parseDate(s.start) ? s : null;
+    C_ALL = Object.keys(items).filter(k => k.startsWith("k:") && items[k] && !items[k].del && typeof items[k].name === "string").map(k => {
+      const x = items[k];
+      return { id: k.slice(2), name: x.name, short: x.short || x.name.slice(0, 6), on: x.on !== false, series: !!x.series, ord: +x.ord || 0,
+               ev: Array.isArray(x.ev) ? x.ev.filter(e => e && typeof e.id === "string") : [] };
+    }).sort((a, b) => (a.ord - b.ord) || a.name.localeCompare(b.name));
+    CO = {}; C_ALL.forEach(c => { CO[c.id] = c; });
+    C_ACT = SEM ? C_ALL.filter(c => c.on) : [];
+    EVENTS = []; EV = {};
+    C_ACT.forEach(c => c.ev.forEach(e => {
+      const o = { id: e.id, c: c.id, k: e.k === "U" ? "U" : "V", d: clamp(e.d | 0, 0, 5), s: e.s || "", e: e.e || "", t: e.t || "" };
+      EVENTS.push(o); EV[o.id] = o;
+    }));
+    EVENTS.sort((a, b) => (a.d - b.d) || (a.s || "99").localeCompare(b.s || "99") || a.id.localeCompare(b.id));
+    NDAYS = EVENTS.some(e => e.d === 5) ? 6 : 5;
+    if (SEM) {
+      START = mondayOf(parseDate(SEM.start)); NWEEKS = clamp(parseInt(SEM.weeks, 10) || 14, 1, 30); BASE = isoWeek(START);
+      curWeek = clamp(1 + Math.floor(Math.round((todayMid - START) / 864e5) / 7), 1, NWEEKS);
+    } else { START = null; NWEEKS = 14; BASE = 0; curWeek = 1; }
+  }
+  const dateOf = (wi, d) => { const x = new Date(START); x.setDate(x.getDate() + (wi - 1) * 7 + d); return x; };
+  const markKey = (wi, ev) => "w" + (BASE + wi - 1) + "_" + ev.id;
+  const evTime = (ev) => { const tm = ev.s && ev.e ? ev.s + "–" + ev.e : ev.s; return ev.t ? (tm ? tm + " · " + ev.t : ev.t) : tm; };
+
   function getMark(k) { const x = items["m:" + k]; return x ? x.s : null; }
   function getSer(c, n) { const x = items["s:" + c + ":" + n]; return x ? x.s : null; }
   function cfg(c) {
-    const x = items["c:" + c] || {};
-    const start = Math.min(NWEEKS, Math.max(1, x.start || 1));
-    const co = COURSES.find(y => y.c === c);
-    const count = x.count != null ? x.count : (co && co.series ? Math.max(0, NWEEKS - start) : 0);
+    const x = items["c:" + c] || {}, k = items["k:" + c];
+    const start = clamp(parseInt(x.start, 10) || 1, 1, NWEEKS);
+    const count = x.count != null ? clamp(parseInt(x.count, 10) || 0, 0, 30) : (k && k.series ? Math.max(0, NWEEKS - start) : 0);
     return { start, count };
   }
-  function setItem(key, val) { items[key] = Object.assign({}, val, { at: stamp() }); saveLocal(); render(); schedulePush(); }
+  function commit() { saveLocal(); render(); schedulePush(); }
+  function setItem(key, val) { items[key] = Object.assign({}, val, { at: stamp() }); commit(); }
+  function defaultSem() {
+    const m = todayMid.getMonth(), y = todayMid.getFullYear();
+    const name = m === 0 ? "HS" + String(y - 1).slice(2) : (m <= 6 ? "FS" : "HS") + String(y).slice(2);
+    return { name, prog: "", start: ymd(mondayOf(todayMid)), weeks: 14 };
+  }
 
-  // ================= Rendering =================
+  // ================= Zeichnen =================
   const $ = (id) => document.getElementById(id);
   function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
-  let tab = ls.get(LS_TAB) === "ser" ? "ser" : "lec";
-  let filterLec = "all", filterSer = "all";
+  function button(cls, text, onClick) { const b = el("button", cls, text); b.type = "button"; b.onclick = onClick; return b; }
+  let tab = ["lec", "ser", "setup"].indexOf(ls.get(LS_TAB)) >= 0 ? ls.get(LS_TAB) : "lec";
+  let filterLec = "all";
 
   function seriesList() {
     const out = [];
-    COURSES.forEach(co => {
-      const { start, count } = cfg(co.c);
-      for (let n = 1; n <= count; n++) {
-        const w = start + n - 1;
-        out.push({ c: co.c, n, w, s: getSer(co.c, n) });
-      }
+    C_ACT.forEach(co => {
+      const { start, count } = cfg(co.id);
+      for (let n = 1; n <= count; n++) out.push({ c: co.id, n, w: start + n - 1, s: getSer(co.id, n) });
     });
     return out;
   }
 
   function render() {
-    // --- Vorlesungen ---
+    recompute();
+    const ready = !!SEM && C_ACT.length > 0;
+    $("tb-sem").textContent = SEM ? SEM.name : "–";
+    $("tb-sheet").textContent = SEM ? pad(curWeek) + " / " + pad(NWEEKS) : "– / –";
+    $("tb-prog").textContent = SEM && SEM.prog ? SEM.prog : "–";
+
     const marks = Object.keys(items).filter(k => k.startsWith("m:") && items[k] && items[k].s).map(k => {
       const m = /^m:w(\d+)_(.+)$/.exec(k); if (!m) return null;
-      const ev = EVENTS.find(e => e.id === m[2]); return ev ? { k: k.slice(2), kw: +m[1], ev, s: items[k].s } : null;
+      const ev = EV[m[2]], wi = +m[1] - BASE + 1;
+      return ev && wi >= 1 && wi <= NWEEKS ? { k: k.slice(2), wi, ev, s: items[k].s } : null;
     }).filter(Boolean);
-    const open = marks.filter(x => x.s === "missed");
-    const doneL = marks.filter(x => x.s === "done");
-
-    // --- Serien ---
+    const open = marks.filter(x => x.s === "missed"), doneL = marks.filter(x => x.s === "done");
     const ser = seriesList();
     const serDue = ser.filter(x => x.w <= curWeek && x.s !== "done");
-    const serWip = ser.filter(x => x.s === "wip");
-    const serDone = ser.filter(x => x.s === "done");
+    const serWip = ser.filter(x => x.s === "wip"), serDone = ser.filter(x => x.s === "done");
 
-    // stats
     const st = $("stats"); st.replaceChildren();
     [["open", open.length, "Vorlesungen offen"], ["open", serDue.length, "Serien offen"], ["wip", serWip.length, "in Bearbeitung"], ["done", doneL.length + serDone.length, "erledigt"]]
       .forEach(([c, n, l]) => { const s = el("div", "stat " + c); s.append(el("b", null, String(n)), el("span", null, l)); st.append(s); });
     $("n-lec").textContent = open.length || "";
     $("n-ser").textContent = serDue.length || "";
 
-    // tabs
     document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.tab === tab)));
-    $("panel-lec").hidden = tab !== "lec";
-    $("panel-ser").hidden = tab !== "ser";
-
-    renderLecBacklog(open);
-    renderWeeks();
-    renderSerBacklog(serDue);
-    renderCourses();
+    $("panel-lec").hidden = tab !== "lec"; $("panel-ser").hidden = tab !== "ser"; $("panel-setup").hidden = tab !== "setup";
+    $("empty-lec").hidden = ready; $("main-lec").hidden = !ready;
+    $("empty-ser").hidden = ready; $("main-ser").hidden = !ready;
+    if (ready) { renderLecBacklog(open); renderWeeks(ser); renderSerBacklog(serDue); renderCourses(); }
+    renderSetup();
   }
 
   function filterBar(host, counts, current, onPick, total) {
     host.replaceChildren();
     if (!total) return;
-    const mk = (id, label, n) => { const b = el("button", "filter", label); b.type = "button"; b.setAttribute("aria-pressed", String(current === id));
-      if (n != null) b.append(el("span", "n", String(n))); b.onclick = () => onPick(id); host.append(b); };
+    const mk = (id, label, n) => { const b = button("filter", label, () => onPick(id)); b.setAttribute("aria-pressed", String(current === id)); b.append(el("span", "n", String(n))); host.append(b); };
     mk("all", "Alle", total);
-    COURSES.forEach(co => { if (counts[co.c]) mk(co.c, co.name, counts[co.c]); });
+    C_ACT.forEach(co => { if (counts[co.id]) mk(co.id, co.name, counts[co.id]); });
   }
 
   function renderLecBacklog(open) {
@@ -513,55 +694,53 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
     filterBar($("filters-lec"), counts, filterLec, (id) => { filterLec = id; render(); }, open.length);
     const bl = $("blist-lec"); bl.replaceChildren();
     const shown = open.filter(x => filterLec === "all" || x.ev.c === filterLec)
-      .sort((a, b) => (a.kw - b.kw) || (a.ev.d - b.ev.d) || a.ev.s.localeCompare(b.ev.s));
+      .sort((a, b) => (a.wi - b.wi) || (a.ev.d - b.ev.d) || (a.ev.s || "99").localeCompare(b.ev.s || "99"));
     if (!shown.length) bl.append(el("div", "empty", "Nichts offen. Markier unten eine Vorlesung oder Übung als verpasst, dann taucht sie hier auf."));
     shown.forEach(x => {
       const r = el("div", "brow");
       r.append(el("span", "tag " + x.ev.k, x.ev.k));
       const mid = el("div"); mid.style.minWidth = "0";
-      mid.append(el("div", "t", CNAME[x.ev.c] + " · " + KIND[x.ev.k]));
-      const sub = el("div", "sub"); sub.append(el("span", null, DAYS[x.ev.d] + " " + fmt(dateOf(x.kw, x.ev.d)) + " · Woche " + (x.kw - FIRST_KW + 1)));
+      mid.append(el("div", "t", CO[x.ev.c].name + " · " + KIND[x.ev.k]));
+      const sub = el("div", "sub"); sub.append(el("span", null, DAYS[x.ev.d] + " " + fmt(dateOf(x.wi, x.ev.d)) + " · Woche " + x.wi));
       mid.append(sub);
       const acts = el("div", "acts");
-      const b = el("button", "btn ok"); b.append(el("span", "bl", "Nachgeholt "), "✓"); b.setAttribute("aria-label", "Als nachgeholt markieren"); b.type = "button"; b.onclick = () => setItem("m:" + x.k, { s: "done" });
+      const b = button("btn ok", null, () => setItem("m:" + x.k, { s: "done" }));
+      b.append(el("span", "bl", "Nachgeholt "), "✓"); b.setAttribute("aria-label", "Als nachgeholt markieren");
       acts.append(b); r.append(mid, acts); bl.append(r);
     });
   }
 
-  function renderWeeks() {
+  function renderWeeks(ser) {
     const wk = $("weeks"); wk.replaceChildren();
-    const ser = seriesList();
-    for (let kw = FIRST_KW; kw <= LAST_KW; kw++) {
-      const wi = kw - FIRST_KW + 1;
-      const mon = dateOf(kw, 0), fri = dateOf(kw, 4);
-      const w = el("article", "week" + (kw === curKw ? " current" : "") + (mon > todayMid ? " future" : ""));
-      w.id = "kw" + kw;
+    for (let wi = 1; wi <= NWEEKS; wi++) {
+      const mon = dateOf(wi, 0), last = dateOf(wi, NDAYS - 1);
+      const w = el("article", "week" + (wi === curWeek ? " current" : "") + (mon > todayMid ? " future" : ""));
+      w.id = "week" + wi;
       const h = el("div", "week-h");
-      h.append(el("h3", null, "Woche " + wi), el("span", "range mono", "KW " + kw + " · " + fmt(mon) + " – " + fmt(fri)));
-      if (kw === curKw) h.append(el("span", "badge", "Aktuell"));
-      let m = 0, d = 0; EVENTS.forEach(ev => { const s = getMark("w" + kw + "_" + ev.id); if (s === "missed") m++; if (s === "done") d++; });
+      h.append(el("h3", null, "Woche " + wi), el("span", "range mono", "KW " + isoWeek(mon) + " · " + fmt(mon) + " – " + fmt(last)));
+      if (wi === curWeek && mon <= todayMid) h.append(el("span", "badge", "Aktuell"));
+      let m = 0, d = 0; EVENTS.forEach(ev => { const s = getMark(markKey(wi, ev)); if (s === "missed") m++; if (s === "done") d++; });
       const cnt = el("span", "count");
       if (m) cnt.append(el("span", "m", m + " offen")); if (d) cnt.append(el("span", "d", d + " nachgeholt"));
       h.append(cnt); w.append(h);
 
-      const days = el("div", "days");
-      for (let di = 0; di < 5; di++) {
-        const date = dateOf(kw, di);
+      const days = el("div", "days"); days.style.setProperty("--nd", NDAYS);
+      for (let di = 0; di < NDAYS; di++) {
+        const date = dateOf(wi, di);
         const col = el("div", "day");
         const lab = el("div", "day-l" + (sameDay(date, now) ? " today" : ""));
         lab.append(el("span", null, DAYS[di]), el("span", "mono", date.getDate() + "."));
         const chips = el("div", "day-chips");
         EVENTS.filter(ev => ev.d === di).forEach(ev => {
-          const k = "w" + kw + "_" + ev.id; const s = getMark(k);
-          const c = el("button", "chip" + (s ? " " + s : "")); c.type = "button";
-          c.setAttribute("aria-label", CNAME[ev.c] + " " + KIND[ev.k] + ", " + DAYS[di] + " " + fmt(date) + ": " + (s === "missed" ? "verpasst" : s === "done" ? "nachgeholt" : "besucht"));
+          const k = markKey(wi, ev), s = getMark(k), name = CO[ev.c].name;
+          const c = button("chip" + (s ? " " + s : ""), null, () => setItem("m:" + k, { s: NEXT_MARK(s) }));
+          c.setAttribute("aria-label", name + " " + KIND[ev.k] + ", " + DAYS[di] + " " + fmt(date) + ": " + (s === "missed" ? "verpasst" : s === "done" ? "nachgeholt" : "besucht"));
           const body = el("div"); body.style.minWidth = "0";
-          body.append(el("div", "nm", CNAME[ev.c]));
-          const tm = el("div", "tm", ev.flexText || (ev.s + "–" + ev.e));
+          body.append(el("div", "nm", name));
+          const tm = el("div", "tm", evTime(ev));
           if (s) tm.append(el("span", "st", s === "missed" ? "verpasst" : "✓ nachgeholt"));
           body.append(tm);
           c.append(el("span", "tag " + ev.k, ev.k), body);
-          c.onclick = () => setItem("m:" + k, { s: NEXT_MARK(s) });
           chips.append(c);
         });
         col.append(lab, chips); days.append(col);
@@ -573,10 +752,9 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
         const row = el("div", "week-series");
         row.append(el("span", "lbl", "Serien"));
         thisWeek.forEach(x => {
-          const b = el("button", "schip" + (x.s ? " " + x.s : "")); b.type = "button";
-          b.append(el("span", null, SHORT[x.c]), el("b", null, "S" + x.n));
-          b.title = CNAME[x.c] + " Serie " + x.n + ": " + serLabel(x.s);
-          b.onclick = () => setItem("s:" + x.c + ":" + x.n, { s: NEXT_SER(x.s) });
+          const b = button("schip" + (x.s ? " " + x.s : ""), null, () => setItem("s:" + x.c + ":" + x.n, { s: NEXT_SER(x.s) }));
+          b.append(el("span", null, CO[x.c].short), el("b", null, "S" + x.n));
+          b.title = CO[x.c].name + " Serie " + x.n + ": " + serLabel(x.s);
           row.append(b);
         });
         w.append(row);
@@ -588,11 +766,10 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
   const serLabel = (s) => s === "wip" ? "in Bearbeitung" : s === "done" ? "erledigt" : "noch nicht gemacht";
 
   function renderSerBacklog(due) {
-    $("filters-ser").replaceChildren();
     const bl = $("blist-ser"); bl.replaceChildren();
     if (!due.length) { bl.append(el("div", "empty", "Alle bisher erschienenen Serien sind erledigt.")); return; }
-    COURSES.forEach(co => {
-      const mine = due.filter(x => x.c === co.c).sort((a, b) => a.n - b.n);
+    C_ACT.forEach(co => {
+      const mine = due.filter(x => x.c === co.id).sort((a, b) => a.n - b.n);
       if (!mine.length) return;
       const r = el("div", "srow");
       const head = el("div", "srow-h");
@@ -603,12 +780,11 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
       mine.forEach(x => {
         let cls = "schip";
         if (x.s) cls += " " + x.s; else if (x.w < curWeek) cls += " late";
-        const b = el("button", cls); b.type = "button";
+        const b = button(cls, null, () => setItem("s:" + x.c + ":" + x.n, { s: NEXT_SER(x.s) }));
         b.append(el("b", null, "S" + x.n));
         if (x.w === curWeek) b.append(el("span", "nw", "neu"));
         b.title = co.name + " Serie " + x.n + " (Woche " + x.w + "): " + serLabel(x.s) + ". Tippen wechselt.";
         b.setAttribute("aria-label", b.title);
-        b.onclick = () => setItem("s:" + x.c + ":" + x.n, { s: NEXT_SER(x.s) });
         chips.append(b);
       });
       r.append(head, chips); bl.append(r);
@@ -618,72 +794,334 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
   const openCfg = new Set();
   function renderCourses() {
     const host = $("courses"); host.replaceChildren();
-    COURSES.forEach(co => {
-      const { start, count } = cfg(co.c);
-      if (!co.series && !items["c:" + co.c]) return renderAddCourse(host, co);
+    C_ACT.forEach(co => {
+      const { start, count } = cfg(co.id);
       const card = el("article", "course");
       const h = el("div", "course-h");
-      let nd = 0, nw = 0; for (let n = 1; n <= count; n++) { const s = getSer(co.c, n); if (s === "done") nd++; if (s === "wip") nw++; }
+      if (!count && !openCfg.has(co.id)) {
+        h.append(el("h3", null, co.name), el("span", "prog", "keine Serien"));
+        h.append(button("edit", "Serien hinzufügen", () => { openCfg.add(co.id); setItem("c:" + co.id, { start, count: Math.max(1, NWEEKS - start) }); }));
+        card.append(h); host.append(card); return;
+      }
+      let nd = 0, nw = 0; for (let n = 1; n <= count; n++) { const s = getSer(co.id, n); if (s === "done") nd++; if (s === "wip") nw++; }
       h.append(el("h3", null, co.name), el("span", "prog", nd + "/" + count + " erledigt"));
-      const eb = el("button", "edit", openCfg.has(co.c) ? "Fertig" : "Anpassen"); eb.type = "button";
-      eb.onclick = () => { openCfg.has(co.c) ? openCfg.delete(co.c) : openCfg.add(co.c); render(); };
-      h.append(eb); card.append(h);
+      h.append(button("edit", openCfg.has(co.id) ? "Fertig" : "Anpassen", () => { openCfg.has(co.id) ? openCfg.delete(co.id) : openCfg.add(co.id); render(); }));
+      card.append(h);
 
       const bar = el("div", "bar");
       const bd = el("i", "d"); bd.style.width = (count ? nd / count * 100 : 0) + "%";
       const bw = el("i", "w"); bw.style.width = (count ? nw / count * 100 : 0) + "%";
       bar.append(bd, bw); card.append(bar);
 
-      if (openCfg.has(co.c)) {
+      if (openCfg.has(co.id)) {
         const c = el("div", "cfg");
         c.append(stepper("Serie 1 kam in Woche", start, 1, NWEEKS, (v) => {
-          const cur = items["c:" + co.c] || {};
-          setItem("c:" + co.c, { start: v, count: cur.count != null ? cur.count : null });
+          const cur = items["c:" + co.id] || {};
+          setItem("c:" + co.id, { start: v, count: cur.count != null ? cur.count : null });
         }));
-        c.append(stepper("Anzahl Serien", count, 0, 20, (v) => setItem("c:" + co.c, { start, count: v })));
+        c.append(stepper("Anzahl Serien", count, 0, 30, (v) => setItem("c:" + co.id, { start, count: v })));
         c.append(el("div", "hint", "Serie n wird Woche " + start + " + (n − 1) zugeordnet. Die Nummern bleiben, nur die Zuordnung zu den Wochen verschiebt sich."));
         card.append(c);
       }
 
       const tiles = el("div", "tiles");
       for (let n = 1; n <= count; n++) {
-        const w = start + n - 1; const s = getSer(co.c, n);
+        const w = start + n - 1, s = getSer(co.id, n);
         let cls = "tile";
-        if (s) cls += " " + s;
-        else if (w > curWeek) cls += " future";
-        else if (w === curWeek) cls += " now";
-        else cls += " late";
-        const t = el("button", cls); t.type = "button";
+        if (s) cls += " " + s; else if (w > curWeek) cls += " future"; else if (w === curWeek) cls += " now"; else cls += " late";
+        const t = button(cls, null, () => setItem("s:" + co.id + ":" + n, { s: NEXT_SER(s) }));
         t.setAttribute("aria-label", co.name + " Serie " + n + ", Woche " + w + ": " + serLabel(s));
         t.title = "Serie " + n + " · Woche " + w + " · " + serLabel(s);
         t.append(el("span", "num", String(n)), el("span", "wk", w <= NWEEKS ? "W" + w : "nach"));
-        t.onclick = () => setItem("s:" + co.c + ":" + n, { s: NEXT_SER(s) });
         tiles.append(t);
       }
-      if (!count) tiles.append(el("div", "empty", "Keine Serien. Über „Anpassen“ hinzufügen."));
+      if (!count) tiles.append(el("div", "empty", "Keine Serien."));
       card.append(tiles);
       host.append(card);
     });
   }
-  function renderAddCourse(host, co) {
-    const card = el("article", "course");
-    const h = el("div", "course-h"); h.append(el("h3", null, co.name), el("span", "prog", "keine Serien"));
-    const b = el("button", "edit", "Serien hinzufügen"); b.type = "button";
-    b.onclick = () => { openCfg.add(co.c); setItem("c:" + co.c, { start: 1, count: NWEEKS }); };
-    h.append(b); card.append(h); host.append(card);
-  }
   function stepper(label, value, min, max, onChange) {
     const wrap = el("div", "stepper");
     wrap.append(el("span", null, label));
-    const minus = el("button", null, "−"); minus.type = "button"; minus.setAttribute("aria-label", label + " verringern");
-    const out = el("output", null, String(value));
-    const plus = el("button", null, "+"); plus.type = "button"; plus.setAttribute("aria-label", label + " erhöhen");
+    const minus = button(null, "−", () => { if (value > min) onChange(value - 1); }); minus.setAttribute("aria-label", label + " verringern");
+    const plus = button(null, "+", () => { if (value < max) onChange(value + 1); }); plus.setAttribute("aria-label", label + " erhöhen");
     minus.disabled = value <= min; plus.disabled = value >= max;
-    minus.onclick = (e) => { e.preventDefault(); if (value > min) onChange(value - 1); };
-    plus.onclick = (e) => { e.preventDefault(); if (value < max) onChange(value + 1); };
-    wrap.append(minus, out, plus);
+    wrap.append(minus, el("output", null, String(value)), plus);
     return wrap;
   }
+
+  // ================= Einrichten: Semester und Kurse =================
+  let draft = null, delArm = false, edErr = "", notice = "";
+
+  function fillSem(force) {
+    const set = (id, v) => { const e = $(id); if (force || document.activeElement !== e) e.value = v; };
+    set("sem-name", SEM ? SEM.name : ""); set("sem-prog", SEM ? (SEM.prog || "") : "");
+    set("sem-start", SEM ? ymd(START) : ""); set("sem-weeks", SEM ? NWEEKS : "");
+    const end = SEM ? dateOf(NWEEKS, 4) : null;
+    $("sem-info").textContent = SEM
+      ? "Woche 1 beginnt am Montag, " + fmt(START) + " " + START.getFullYear() + ". Letzter Freitag: " + fmt(end) + " " + end.getFullYear() + "."
+      : "Trag ein, wann dein Semester beginnt und wie viele Wochen es hat. Der Start wird auf den Montag der Woche gesetzt.";
+  }
+  function saveSem() {
+    const cur = items.sem && parseDate(items.sem.start) ? items.sem : defaultSem();
+    const st = parseDate($("sem-start").value);
+    items.sem = {
+      name: ($("sem-name").value.trim() || cur.name).slice(0, 20), prog: $("sem-prog").value.trim().slice(0, 40),
+      start: st ? ymd(mondayOf(st)) : cur.start, weeks: clamp(parseInt($("sem-weeks").value, 10) || parseInt(cur.weeks, 10) || 14, 1, 30), at: stamp()
+    };
+    commit(); fillSem(true);
+  }
+
+  const blankEv = (cid, k) => ({ id: newId(cid), k, d: 0, s: "08:00", e: "10:00", t: "" });
+  function openEditor(co) {
+    delArm = false; edErr = ""; notice = "";
+    if (co) draft = { id: co.id, isNew: false, name: co.name, short: co.short, series: cfg(co.id).count > 0,
+                      ev: co.ev.map(e => ({ id: e.id, k: e.k === "U" ? "U" : "V", d: clamp(e.d | 0, 0, 5), s: e.s || "", e: e.e || "", t: e.t || "" })) };
+    else { const id = newId("k"); draft = { id, isNew: true, name: "", short: "", series: true, ev: [blankEv(id, "V")] }; }
+    renderSetup();
+    const f = $("ed-name"); if (f) { f.focus(); f.scrollIntoView({ block: "center" }); }
+  }
+  function saveDraft() {
+    const name = draft.name.trim().slice(0, 60);
+    if (!name) { edErr = "Bitte einen Namen eingeben."; renderSetup(); $("ed-name").focus(); return; }
+    const t = stamp(), id = draft.id, prev = items["k:" + id] || {};
+    if (!SEM) items.sem = Object.assign(defaultSem(), { at: t });
+    const maxOrd = C_ALL.reduce((m, c) => Math.max(m, c.ord), -1);
+    items["k:" + id] = {
+      name, short: (draft.short.trim() || name.slice(0, 6)).slice(0, 10), on: prev.on !== false, series: draft.series,
+      ord: draft.isNew ? maxOrd + 1 : (+prev.ord || 0),
+      ev: draft.ev.map(e => ({ id: e.id, k: e.k, d: e.d, s: e.s, e: e.e, t: e.t.trim().slice(0, 24) })), at: t
+    };
+    const cur = items["c:" + id], g = cfg(id);
+    if (draft.series && cur && cur.count === 0) items["c:" + id] = { start: g.start, count: null, at: t };
+    if (!draft.series && g.count > 0) items["c:" + id] = { start: g.start, count: 0, at: t };
+    draft = null; edErr = ""; commit();
+  }
+
+  function field(label, control) { const w = el("label", "fld"); w.append(el("span", null, label), control); return w; }
+  function sel(id, opts, val, on) {
+    const s = el("select", "inp"); s.id = id;
+    opts.forEach(([v, t]) => { const o = el("option", null, t); o.value = v; s.append(o); });
+    s.value = String(val); s.onchange = () => on(s.value); return s;
+  }
+  function inp(id, type, val, on, attrs) { const i = el("input", "inp"); i.id = id; i.type = type; Object.assign(i, attrs || {}); i.value = val; i.oninput = () => on(i.value); return i; }
+
+  function editorEl() {
+    const d = draft, box = el("div", "editor");
+    box.append(el("div", "sub-h", d.isNew ? "Neuer Kurs" : "Kurs bearbeiten"));
+    const g = el("div", "form-grid");
+    g.append(field("Name", inp("ed-name", "text", d.name, v => { d.name = v; }, { maxLength: 60, placeholder: "z. B. Analysis III" })),
+             field("Kürzel", inp("ed-short", "text", d.short, v => { d.short = v; }, { maxLength: 10, placeholder: "z. B. Ana" })));
+    box.append(g);
+    box.append(el("div", "sub-h", "Termine pro Woche"));
+    d.ev.forEach((e, i) => {
+      const r = el("div", "ev-row");
+      r.append(field("Typ", sel("ed-k-" + i, [["V", "Vorlesung"], ["U", "Übung"]], e.k, v => { e.k = v; })),
+               field("Tag", sel("ed-d-" + i, DAYS_LONG.map((t, j) => [String(j), t]), e.d, v => { e.d = +v; })),
+               field("Von", inp("ed-s-" + i, "time", e.s, v => { e.s = v; })),
+               field("Bis", inp("ed-e-" + i, "time", e.e, v => { e.e = v; })),
+               field("Hinweis (optional)", inp("ed-t-" + i, "text", e.t, v => { e.t = v; }, { maxLength: 24, placeholder: "z. B. Raum oder „Mo Abend“" })));
+      const x = button("icon-btn", "✕", () => { d.ev.splice(i, 1); renderSetup(); });
+      x.title = "Termin entfernen"; x.setAttribute("aria-label", "Termin " + (i + 1) + " entfernen");
+      r.append(x); box.append(r);
+    });
+    if (!d.ev.length) box.append(el("div", "empty", "Keine Termine. Der Kurs erscheint dann nur bei den Serien."));
+    const add = el("div", "row");
+    add.append(button("btn", "+ Vorlesung", () => { if (d.ev.length < 12) d.ev.push(blankEv(d.id, "V")); renderSetup(); }),
+               button("btn", "+ Übung", () => { if (d.ev.length < 12) d.ev.push(blankEv(d.id, "U")); renderSetup(); }));
+    box.append(add);
+    const sl = el("label", "row"); const cb = el("input", "check"); cb.type = "checkbox"; cb.id = "ed-series"; cb.checked = d.series; cb.onchange = () => { d.series = cb.checked; };
+    sl.append(cb, el("span", null, "Hat Serien (Übungsblätter), die ich abhaken will")); box.append(sl);
+    if (edErr) box.append(el("div", "err", edErr));
+    const acts = el("div", "row");
+    acts.append(button("btn primary", "Speichern", saveDraft), button("btn", "Abbrechen", () => { draft = null; edErr = ""; renderSetup(); }));
+    if (!d.isNew) acts.append(button("btn danger", delArm ? "Wirklich löschen?" : "Kurs löschen", () => {
+      if (!delArm) { delArm = true; renderSetup(); return; }
+      items["k:" + d.id] = Object.assign({}, items["k:" + d.id], { del: true, at: stamp() }); draft = null; delArm = false; commit();
+    }));
+    box.append(acts);
+    return box;
+  }
+
+  function renderCourseList() {
+    const host = $("setup-courses");
+    const act = document.activeElement, keep = act && host.contains(act) && act.id ? { id: act.id, a: act.selectionStart, b: act.selectionEnd } : null;
+    host.replaceChildren();
+    if (notice) host.append(el("div", "note", notice));
+    C_ALL.forEach(co => {
+      if (draft && draft.id === co.id) { host.append(editorEl()); return; }
+      const r = el("div", "crow" + (co.on ? "" : " off"));
+      const cb = el("input", "check"); cb.type = "checkbox"; cb.checked = co.on; cb.id = "on-" + co.id;
+      cb.setAttribute("aria-label", co.name + " belegen");
+      cb.onchange = () => { items["k:" + co.id] = Object.assign({}, items["k:" + co.id], { on: cb.checked, at: stamp() }); notice = ""; commit(); };
+      const mid = el("label"); mid.htmlFor = cb.id; mid.style.minWidth = "0"; mid.style.cursor = "pointer";
+      const nv = co.ev.filter(e => e.k !== "U").length, nu = co.ev.length - nv, ns = cfg(co.id).count;
+      const parts = []; if (nv) parts.push(nv + " V"); if (nu) parts.push(nu + " U"); if (ns) parts.push(ns + " Serien"); if (!co.on) parts.push("abgewählt");
+      mid.append(el("div", "t", co.name), el("div", "sub", parts.join(" · ") || "keine Termine"));
+      r.append(cb, mid, button("btn", "Bearbeiten", () => openEditor(co)));
+      host.append(r);
+    });
+    if (!C_ALL.length && !draft) host.append(el("div", "empty", "Noch keine Kurse. Leg einen an oder übernimm unten ein Preset."));
+    if (draft && draft.isNew) host.append(editorEl());
+    $("add-course").hidden = !!draft;
+    if (keep) { const e = $(keep.id); if (e) { e.focus(); try { if (keep.a != null) e.setSelectionRange(keep.a, keep.b); } catch (x) {} } }
+  }
+
+  // ================= Presets =================
+  const str = (v, n) => (typeof v === "string" ? v : "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, n);
+  const idOk = (v, n) => typeof v === "string" && v.length <= n && /^[a-z0-9-]+$/.test(v);
+  // Prüft ein Preset aus fremder Quelle und gibt eine bereinigte Kopie zurück. Wirft, wenn es unbrauchbar ist.
+  function sanitizePreset(p) {
+    if (!p || typeof p !== "object") throw new Error("format");
+    const semIn = p.sem && typeof p.sem === "object" ? p.sem : {}, st = parseDate(semIn.start);
+    if (!st || !Array.isArray(p.courses)) throw new Error("format");
+    const out = { v: 1, name: str(p.name, 80) || "Preset", uni: str(p.uni, 60), prog: str(p.prog, 40),
+                  sem: { name: str(semIn.name, 20) || "Semester", start: ymd(mondayOf(st)), weeks: clamp(parseInt(semIn.weeks, 10) || 14, 1, 30) }, courses: [] };
+    const seenC = new Set(), seenE = new Set(), tm = (v) => (typeof v === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : "");
+    p.courses.slice(0, 20).forEach(c => {
+      if (!c || typeof c !== "object") return;
+      const name = str(c.name, 60); if (!name) return;
+      const id = idOk(c.id, 24) && !seenC.has(c.id) ? c.id : newId("k"); seenC.add(id);
+      const ev = [];
+      (Array.isArray(c.ev) ? c.ev : []).slice(0, 12).forEach(e => {
+        if (!e || typeof e !== "object") return;
+        const eid = idOk(e.id, 40) && !seenE.has(e.id) ? e.id : newId(id); seenE.add(eid);
+        ev.push({ id: eid, k: e.k === "U" ? "U" : "V", d: clamp(parseInt(e.d, 10) || 0, 0, 5), s: tm(e.s), e: tm(e.e), t: str(e.t, 24) });
+      });
+      const o = { id, name, short: str(c.short, 10) || name.slice(0, 6), series: !!c.series, ev };
+      if (c.ser && typeof c.ser === "object") o.ser = { start: clamp(parseInt(c.ser.start, 10) || 1, 1, 30), count: clamp(parseInt(c.ser.count, 10) || 0, 0, 30) };
+      out.courses.push(o);
+    });
+    if (!out.courses.length) throw new Error("format");
+    return out;
+  }
+  const b64u = {
+    enc(bytes) { let s = ""; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); },
+    dec(t) { const s = atob(t.replace(/-/g, "+").replace(/_/g, "/")); const out = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i); return out; }
+  };
+  async function pipe(bytes, stream) { return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer()); }
+  // Preset-Code: erstes Zeichen "1" = komprimiert (deflate), "0" = unkomprimiert, danach base64url
+  async function encodePreset(p) {
+    const raw = new TextEncoder().encode(JSON.stringify(p));
+    if (typeof CompressionStream === "function") { try { return "1" + b64u.enc(await pipe(raw, new CompressionStream("deflate-raw"))); } catch (e) {} }
+    return "0" + b64u.enc(raw);
+  }
+  async function decodePreset(code) {
+    let bytes = b64u.dec(code.slice(1));
+    if (code[0] === "1") bytes = await pipe(bytes, new DecompressionStream("deflate-raw"));
+    else if (code[0] !== "0") throw new Error("version");
+    if (bytes.length > 200000) throw new Error("size");
+    return sanitizePreset(JSON.parse(new TextDecoder().decode(bytes)));
+  }
+  const CODE_RE = /#p=([01][A-Za-z0-9_-]{16,12000})/;
+
+  function currentPreset(name, uni) {
+    return { v: 1, name, uni, prog: SEM.prog || "", sem: { name: SEM.name, start: ymd(START), weeks: NWEEKS },
+      courses: C_ACT.map(co => { const g = cfg(co.id); return { id: co.id, name: co.name, short: co.short, series: g.count > 0, ser: { start: g.start, count: g.count },
+        ev: co.ev.map(e => ({ id: e.id, k: e.k === "U" ? "U" : "V", d: clamp(e.d | 0, 0, 5), s: e.s || "", e: e.e || "", t: e.t || "" })) }; }) };
+  }
+  function applyPreset(p, mode) {
+    const t = stamp();
+    if (mode === "replace" || !SEM) {
+      if (mode === "replace") Object.keys(items).forEach(k => { if (k.startsWith("k:") && items[k] && !items[k].del) items[k] = Object.assign({}, items[k], { del: true, at: t }); });
+      items.sem = { name: p.sem.name, prog: p.prog || "", start: p.sem.start, weeks: p.sem.weeks, at: t };
+    }
+    let ord = mode === "replace" ? 0 : C_ALL.reduce((m, c) => Math.max(m, c.ord), -1) + 1;
+    p.courses.forEach(c => {
+      items["k:" + c.id] = { name: c.name, short: c.short, on: true, series: !!c.series, ord: ord++, ev: c.ev, at: t };
+      if (c.ser) items["c:" + c.id] = { start: c.ser.start, count: c.series ? c.ser.count : 0, at: t };
+    });
+    draft = null; pendingKey = ""; notice = "Preset „" + p.name + "“ übernommen. Wähl jetzt ab, was du nicht belegst.";
+    if (incoming === p) { incoming = null; clearHash(); }
+    commit();
+    $("sec-courses").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  let pendingKey = "", incoming = null, incomingErr = "";
+  let community = [], galState = "idle";
+  function presetCard(p, opt) {
+    const card = el("article", "pcard" + (opt.hl ? " hl" : ""));
+    if (opt.label) card.append(el("div", "sub-h", opt.label));
+    const h = el("div", "row"); h.append(el("h3", null, p.name)); if (opt.ok) h.append(el("span", "stamp", "geprüft")); card.append(h);
+    const st = parseDate(p.sem.start);
+    card.append(el("div", "sub", [p.uni, p.sem.name + " ab " + fmt(st) + " " + st.getFullYear(), p.sem.weeks + " Wochen", opt.by ? "von " + opt.by : ""].filter(Boolean).join(" · ")));
+    card.append(el("div", "list", p.courses.map(c => c.name).join(", ")));
+    const acts = el("div", "row");
+    if (pendingKey === opt.key) {
+      acts.append(button("btn primary", "Ersetzen", () => applyPreset(p, "replace")), button("btn", "Dazunehmen", () => applyPreset(p, "add")),
+                  button("btn", "Abbrechen", () => { pendingKey = ""; renderPresets(); }));
+      card.append(acts, el("p", "hint", "Ersetzen entfernt deine bisherigen Kurse und übernimmt die Semesterdaten. Dazunehmen fügt die Kurse zu deinen hinzu. Deine Einträge bleiben in beiden Fällen gespeichert."));
+      return card;
+    }
+    acts.append(button("btn primary", "Übernehmen", () => { if (SEM && C_ALL.length) { pendingKey = opt.key; renderPresets(); } else applyPreset(p, "replace"); }));
+    if (opt.dismiss) acts.append(button("btn", "Verwerfen", opt.dismiss));
+    if (opt.url) { const a = el("a", "linkbtn", "auf GitHub ansehen"); a.href = opt.url; a.target = "_blank"; a.rel = "noopener"; acts.append(a); }
+    card.append(acts);
+    return card;
+  }
+  function renderPresets() {
+    const inc = $("incoming"); inc.replaceChildren();
+    if (incoming) inc.append(presetCard(incoming, { key: "incoming", hl: true, label: "Geteiltes Preset", dismiss: () => { incoming = null; clearHash(); renderPresets(); } }));
+    else if (incomingErr) inc.append(el("div", "err", incomingErr));
+    const g = $("gallery"); g.replaceChildren();
+    g.append(presetCard(LEGACY, { key: "builtin", ok: true, by: "maxniewo" }));
+    community.forEach((c, i) => g.append(presetCard(c.p, { key: "c" + i, ok: c.ok, by: c.by, url: c.url })));
+    $("gal-info").textContent = galState === "loading" ? "Lade Community-Presets …"
+      : galState === "err" ? "Community-Presets konnten gerade nicht geladen werden."
+      : galState === "ok" && !community.length ? "Noch keine Community-Presets. Teil deins als erstes." : "";
+  }
+  async function loadGallery(force) {
+    let cached = null; try { cached = JSON.parse(ls.get(LS_GAL) || "null"); } catch (e) {}
+    const fromCache = () => (cached && Array.isArray(cached.list) ? cached.list : []).map(c => { try { return { p: sanitizePreset(c.p), by: str(c.by, 40), ok: !!c.ok, url: ghUrl(c.url) }; } catch (e) { return null; } }).filter(Boolean);
+    if (!force && cached && Date.now() - cached.t < 30 * 60e3) { community = fromCache(); galState = "ok"; renderPresets(); return; }
+    galState = "loading"; renderPresets();
+    try {
+      const r = await fetch("https://api.github.com/repos/" + REPO + "/issues?state=open&per_page=100", { headers: { Accept: "application/vnd.github+json" } });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const out = [];
+      for (const is of await r.json()) {
+        if (!is || is.pull_request) continue;
+        const m = CODE_RE.exec(typeof is.body === "string" ? is.body : ""); if (!m) continue;
+        let p = null; try { p = await decodePreset(m[1]); } catch (e) { continue; }
+        out.push({ p, by: str(is.user && is.user.login, 40), url: ghUrl(is.html_url),
+                   ok: Array.isArray(is.labels) && is.labels.some(l => /^(geprüft|geprueft|verified)$/i.test(l && l.name || "")) });
+      }
+      community = out; galState = "ok"; ls.set(LS_GAL, JSON.stringify({ t: Date.now(), list: out }));
+    } catch (e) { community = fromCache(); galState = "err"; }
+    renderPresets();
+  }
+  const ghUrl = (u) => (typeof u === "string" && u.indexOf("https://github.com/") === 0 ? u : "");
+
+  let shareSeq = 0, shareLink = "";
+  async function updateShare() {
+    const ok = !!SEM && C_ACT.length > 0, pub = $("sh-publish"), cp = $("sh-copy");
+    const name = $("sh-name").value.trim().slice(0, 80), uni = $("sh-uni").value.trim().slice(0, 60);
+    const my = ++shareSeq;
+    if (!ok) { shareLink = ""; $("sh-link").value = ""; cp.disabled = true; pub.setAttribute("aria-disabled", "true"); pub.removeAttribute("href"); return; }
+    const p = currentPreset(name || ((SEM.prog ? SEM.prog + " · " : "") + SEM.name), uni);
+    const code = await encodePreset(p); if (my !== shareSeq) return;
+    shareLink = PAGE_URL + "#p=" + code; $("sh-link").value = shareLink; cp.disabled = false;
+    let href = "https://github.com/" + REPO + "/issues/new?template=preset.yml&title=" + encodeURIComponent("Preset: " + p.name + (uni ? " (" + uni + ")" : ""));
+    if (shareLink.length < 6000) href += "&link=" + encodeURIComponent(shareLink);
+    pub.href = href; pub.removeAttribute("aria-disabled");
+  }
+  async function readHash() {
+    const m = /^#p=([01][A-Za-z0-9_-]+)$/.exec(location.hash); if (!m) return;
+    try { incoming = await decodePreset(m[1]); incomingErr = ""; } catch (e) { incoming = null; incomingErr = "Der Preset-Link ist unvollständig oder beschädigt."; }
+    setTab("setup"); $("incoming").scrollIntoView({ block: "center" });
+  }
+  function clearHash() { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
+
+  let galleryAsked = false;
+  function renderSetup() {
+    $("welcome").hidden = !!SEM;
+    fillSem(false);
+    renderCourseList();
+    renderPresets();
+    updateShare();
+    if (tab === "setup" && !galleryAsked) { galleryAsked = true; loadGallery(false); }
+  }
+  function setTab(t) { tab = t; ls.set(LS_TAB, tab); render(); }
 
   // ================= Sync über GitHub Gist =================
   const GH = "https://api.github.com", FILE = "semester-tracker.json";
@@ -691,7 +1129,10 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
   let gistId = ls.get(LS_GIST) || "";
   let syncing = false, again = false, pushTimer = null;
 
-  function status(kind, text) { $("led").className = "led " + (kind || ""); $("saveinfo").textContent = text; }
+  function status(kind, text) {
+    $("led").className = "led " + (kind || ""); $("saveinfo").textContent = text;
+    $("led2").className = "led " + (token ? (kind || "") : ""); $("sync-short").textContent = !token ? "Sync aus" : kind === "warn" ? "Sync-Fehler" : "Sync an";
+  }
   function syncUi() { $("sync-setup").hidden = !!token; $("sync-on").hidden = !token; }
 
   async function gh(path, opts) {
@@ -723,10 +1164,10 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
     try { return JSON.parse(txt || "{}"); } catch (e) { return { items: {} }; }
   }
   async function push() {
-    const files = { [FILE]: { content: JSON.stringify({ v: 2, items }) } };
+    const files = { [FILE]: { content: JSON.stringify({ v: 3, items }) } };
     if (gistId) await gh("/gists/" + gistId, { method: "PATCH", body: JSON.stringify({ files }) });
     else {
-      const g = await gh("/gists", { method: "POST", body: JSON.stringify({ description: "Semester Tracker HS26 (Daten)", public: false, files }) });
+      const g = await gh("/gists", { method: "POST", body: JSON.stringify({ description: "Semester Tracker (Daten)", public: false, files }) });
       gistId = g.id; ls.set(LS_GIST, gistId);
     }
   }
@@ -736,13 +1177,13 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
     syncing = true; status("", "Synchronisiere …");
     try {
       const remote = await pull();
-      const remoteItems = (remote && remote.items) || {};
-      const merged = merge(items, remoteItems);
-      const changedLocal = canon(merged) !== canon(items);
-      items = merged; saveLocal(); if (changedLocal) render();
-      if (!remote || canon(merged) !== canon(remoteItems)) await push();
+      const remoteItems = (remote && typeof remote.items === "object" && remote.items) || {};
+      const before = canon(items);
+      items = merge(items, remoteItems); ensureLegacy();
+      saveLocal(); if (canon(items) !== before) render();
+      if (!remote || canon(items) !== canon(remoteItems)) await push();
       const t = new Date();
-      status("ok", "Synchronisiert um " + String(t.getHours()).padStart(2, "0") + ":" + String(t.getMinutes()).padStart(2, "0"));
+      status("ok", "Synchronisiert um " + pad(t.getHours()) + ":" + pad(t.getMinutes()));
     } catch (e) {
       if (e.status === 401) status("warn", "Token ungültig oder abgelaufen. Sync trennen und neuen Token einfügen.");
       else if (e.status === 403 || e.status === 404) status("warn", "Token hat kein Gist-Recht. Neuen Token mit dem Recht „gist“ erstellen.");
@@ -767,9 +1208,9 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
 
   // ================= Backup =================
   $("export").onclick = () => {
-    const blob = new Blob([JSON.stringify({ v: 2, items }, null, 1)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ v: 3, items }, null, 1)], { type: "application/json" });
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.download = "semester-tracker-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    a.href = URL.createObjectURL(blob); a.download = "semester-tracker-backup-" + ymd(new Date()) + ".json";
     document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
   $("import-btn").onclick = () => $("import").click();
@@ -777,21 +1218,41 @@ h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 700; text-tr
     const f = e.target.files && e.target.files[0]; if (!f) return;
     try {
       const d = JSON.parse(await f.text());
-      if (!d || typeof d.items !== "object") throw new Error("format");
-      items = merge(items, d.items); saveLocal(); render(); schedulePush();
+      if (!d || typeof d.items !== "object" || !d.items) throw new Error("format");
+      items = merge(items, d.items); ensureLegacy(); commit();
       status(token ? "" : "ok", Object.keys(d.items).length + " Einträge importiert" + (token ? ", synchronisiere …" : ""));
     } catch (err) { status("warn", "Datei konnte nicht gelesen werden. Erwartet wird ein Backup dieser Seite (.json)."); }
     e.target.value = "";
   };
 
   // ================= Start =================
-  document.querySelectorAll(".tab").forEach(t => t.onclick = () => { tab = t.dataset.tab; ls.set(LS_TAB, tab); render(); });
-  $("jump").onclick = () => { const t = $("kw" + curKw); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); };
-  $("tb-sheet").textContent = String(curWeek).padStart(2, "0") + " / " + NWEEKS;
-  $("tb-date").textContent = String(now.getDate()).padStart(2, "0") + "." + String(now.getMonth() + 1).padStart(2, "0") + "." + now.getFullYear();
+  document.querySelectorAll(".tab").forEach(t => { t.onclick = () => setTab(t.dataset.tab); });
+  document.querySelectorAll("[data-goto]").forEach(b => { b.onclick = () => { setTab("setup"); window.scrollTo(0, 0); }; });
+  $("jump").onclick = () => { const t = $("week" + curWeek); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  ["sem-name", "sem-prog", "sem-start", "sem-weeks"].forEach(id => { $(id).onchange = saveSem; });
+  $("add-course").onclick = () => openEditor(null);
+  $("start-empty").onclick = () => { if (!SEM) { items.sem = Object.assign(defaultSem(), { at: stamp() }); commit(); } openEditor(null); };
+  $("goto-presets").onclick = () => $("sec-presets").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("gal-reload").onclick = () => loadGallery(true);
+  try { const s = JSON.parse(ls.get(LS_SHARE) || "{}"); $("sh-name").value = str(s.name, 80); $("sh-uni").value = str(s.uni, 60); } catch (e) {}
+  ["sh-name", "sh-uni"].forEach(id => { $(id).oninput = () => { ls.set(LS_SHARE, JSON.stringify({ name: $("sh-name").value, uni: $("sh-uni").value })); updateShare(); }; });
+  $("sh-link").onfocus = () => $("sh-link").select();
+  $("sh-copy").onclick = () => {
+    const done = () => { $("sh-copy").textContent = "Kopiert ✓"; setTimeout(() => { $("sh-copy").textContent = "Link kopieren"; }, 1800); };
+    const fallback = () => { $("sh-link").focus(); $("sh-link").select(); };
+    if (!shareLink) return;
+    try { navigator.clipboard.writeText(shareLink).then(done, fallback); } catch (e) { fallback(); }
+  };
+  $("repo-link").href = "https://github.com/" + REPO;
+  $("tb-date").textContent = pad(now.getDate()) + "." + pad(now.getMonth() + 1) + "." + now.getFullYear();
+  window.addEventListener("hashchange", readHash);
+
+  recompute();
+  if (!SEM) tab = "setup";
   syncUi();
   render();
   if (token) sync(); else status("", "Lokal gespeichert (nur dieses Gerät)");
+  readHash();
 })();
 </script>
 </body>
