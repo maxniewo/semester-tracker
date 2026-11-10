@@ -20,7 +20,7 @@
   --paper: #f3f5f6; --sheet: #fbfcfc; --grid: rgba(31, 63, 105, .06); --grid-major: rgba(31, 63, 105, .11);
   --ink: #13202f; --ink-2: #536274; --line: #13202f; --hair: rgba(19, 32, 47, .16); --fill: #eef1f4;
   --red: #c8371f; --red-soft: rgba(200, 55, 31, .13); --blue: #1d5bb8; --blue-soft: rgba(29, 91, 184, .10);
-  --amber: #b36a00; --amber-soft: rgba(179, 106, 0, .13); --green: #1b7c47; --green-soft: rgba(27, 124, 71, .12);
+  --amber: #b36a00; --amber-soft: rgba(179, 106, 0, .13); --green: #1b7c47; --green-soft: rgba(27, 124, 71, .12); --today: rgba(200, 55, 31, .07);
   --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --f-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -31,7 +31,7 @@
     --paper: #0a2342; --sheet: #0c2a4f; --grid: rgba(150, 195, 255, .06); --grid-major: rgba(150, 195, 255, .12);
     --ink: #e4eefa; --ink-2: #9cb4d2; --line: #cfe0f5; --hair: rgba(207, 224, 245, .22); --fill: rgba(255, 255, 255, .04);
     --red: #ff7d68; --red-soft: rgba(255, 125, 104, .17); --blue: #82b4ff; --blue-soft: rgba(130, 180, 255, .14);
-    --amber: #ffc24f; --amber-soft: rgba(255, 194, 79, .15); --green: #62dba0; --green-soft: rgba(98, 219, 160, .15);
+    --amber: #ffc24f; --amber-soft: rgba(255, 194, 79, .15); --green: #62dba0; --green-soft: rgba(98, 219, 160, .15); --today: rgba(255, 125, 104, .11);
     color-scheme: dark;
   }
 }
@@ -39,7 +39,7 @@
   --paper: #0a2342; --sheet: #0c2a4f; --grid: rgba(150, 195, 255, .06); --grid-major: rgba(150, 195, 255, .12);
   --ink: #e4eefa; --ink-2: #9cb4d2; --line: #cfe0f5; --hair: rgba(207, 224, 245, .22); --fill: rgba(255, 255, 255, .04);
   --red: #ff7d68; --red-soft: rgba(255, 125, 104, .17); --blue: #82b4ff; --blue-soft: rgba(130, 180, 255, .14);
-  --amber: #ffc24f; --amber-soft: rgba(255, 194, 79, .15); --green: #62dba0; --green-soft: rgba(98, 219, 160, .15);
+  --amber: #ffc24f; --amber-soft: rgba(255, 194, 79, .15); --green: #62dba0; --green-soft: rgba(98, 219, 160, .15); --today: rgba(255, 125, 104, .11);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -279,6 +279,15 @@ a.btn.primary { color: var(--sheet); }
 .pcard .sub { color: var(--ink-2); font-family: var(--f-mono); font-size: 12px; overflow-wrap: anywhere; }
 .pcard .list { font-size: 13.5px; overflow-wrap: anywhere; }
 .stamp { font-family: var(--f-display); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--green); border: 1.5px solid var(--green); padding: 0 6px; display: inline-block; transform: rotate(-3deg); }
+.week-series .btn { margin-left: auto; padding: 2px 10px; font-size: 13px; }
+.tabbar { display: flex; gap: 10px 14px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.fold-body { display: flex; flex-direction: column; gap: 12px; }
+.card.folded .fold-body { display: none; }
+.card.folded .card-top { border-bottom: 0; padding-bottom: 0; }
+.filters:empty { display: none; }
+.cnt { font-family: var(--f-mono); font-size: 15px; font-weight: 600; color: var(--red); letter-spacing: 0; }
+.day.today { background: var(--today); outline: 6px solid var(--today); }
+.now-tag { font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: .1em; margin-left: auto; }
 .seg { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .like { font-family: var(--f-mono); font-size: 13px; color: var(--ink); text-decoration: none; border: 1px solid var(--hair); padding: 3px 9px; margin-left: auto; }
 .like:hover { border-color: var(--line); }
@@ -310,6 +319,10 @@ a.btn.primary { color: var(--sheet); }
   .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .tabs { align-self: stretch; }
   .tab { justify-content: center; }
+  .tabbar .tabs { flex: 1 1 100%; }
+  .tabbar .btn { flex: 1 1 100%; }
+  .now-tag { margin-left: 0; font-size: 9px; letter-spacing: .04em; }
+  .card h2 { font-size: 20px; }
   .days { grid-template-columns: 1fr; gap: 8px; }
   .day { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; align-items: start; padding: 0; border-left: 0; }
   .day-l { padding-top: 8px; flex-direction: column; gap: 0; }
@@ -347,10 +360,13 @@ a.btn.primary { color: var(--sheet); }
     <div class="tb-stats" id="stats"></div>
   </header>
 
+  <div class="tabbar">
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-lec" data-tab="lec" type="button">Vorlesungen <span class="n" id="n-lec"></span></button>
     <button class="tab" role="tab" id="tab-ser" data-tab="ser" type="button">Serien <span class="n" id="n-ser"></span></button>
     <button class="tab" role="tab" id="tab-setup" data-tab="setup" type="button">Einrichten</button>
+  </div>
+  <button class="btn" id="jump-top" type="button" hidden>↓ Zur aktuellen Woche</button>
   </div>
 
   <!-- Vorlesungen -->
@@ -361,12 +377,15 @@ a.btn.primary { color: var(--sheet); }
       <div class="row"><button class="btn primary" type="button" data-goto="setup">Einrichten</button></div>
     </div>
     <div class="panel" id="main-lec">
-      <div class="card">
+      <div class="card" id="card-lec">
         <div class="card-top">
-          <h2><span class="mk">A</span>Noch nachzuholen</h2>
-          <div class="filters" id="filters-lec"></div>
+          <h2><span class="mk">A</span>Noch nachzuholen<span class="cnt" id="cnt-lec"></span></h2>
+          <button class="btn" id="fold-lec" type="button" aria-controls="body-lec">Einklappen</button>
         </div>
-        <div class="blist" id="blist-lec"></div>
+        <div class="fold-body" id="body-lec">
+          <div class="filters" id="filters-lec"></div>
+          <div class="blist" id="blist-lec"></div>
+        </div>
       </div>
       <div class="weeks">
         <div class="sec-head">
@@ -392,11 +411,14 @@ a.btn.primary { color: var(--sheet); }
       <div class="row"><button class="btn primary" type="button" data-goto="setup">Einrichten</button></div>
     </div>
     <div class="panel" id="main-ser">
-      <div class="card">
+      <div class="card" id="card-ser">
         <div class="card-top">
-          <h2><span class="mk">A</span>Offene Serien</h2>
+          <h2><span class="mk">A</span>Offene Serien<span class="cnt" id="cnt-ser"></span></h2>
+          <button class="btn" id="fold-ser" type="button" aria-controls="body-ser">Einklappen</button>
         </div>
-        <div class="blist" id="blist-ser"></div>
+        <div class="fold-body" id="body-ser">
+          <div class="blist" id="blist-ser"></div>
+        </div>
       </div>
       <div class="sec-head">
         <h2><span class="mk">B</span>Alle Serien</h2>
@@ -604,7 +626,7 @@ a.btn.primary { color: var(--sheet); }
   //   m:w<kw>_<termin> -> { s: "missed" | "done" | null }   (kw = Kalenderwoche des Semesterstarts + Wochenindex)
   //   s:<kurs>:<n> -> { s: "wip" | "done" | null }
   const LS_DATA = "semester-tracker:data", LS_TOKEN = "semester-tracker:token", LS_GIST = "semester-tracker:gist",
-        LS_TAB = "semester-tracker:tab", LS_GAL = "semester-tracker:gallery", LS_SHARE = "semester-tracker:share";
+        LS_TAB = "semester-tracker:tab", LS_GAL = "semester-tracker:gallery", LS_SHARE = "semester-tracker:share", LS_FOLD = "semester-tracker:fold";
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
@@ -688,6 +710,13 @@ a.btn.primary { color: var(--sheet); }
   function button(cls, text, onClick) { const b = el("button", cls, text); b.type = "button"; b.onclick = onClick; return b; }
   let tab = ["lec", "ser", "setup"].indexOf(ls.get(LS_TAB)) >= 0 ? ls.get(LS_TAB) : "lec";
   let filterLec = "all";
+  let fold = {}; try { fold = JSON.parse(ls.get(LS_FOLD) || "{}") || {}; } catch (e) { fold = {}; }
+  function applyFold() {
+    ["lec", "ser"].forEach(k => {
+      const f = !!fold[k], b = $("fold-" + k);
+      $("card-" + k).classList.toggle("folded", f); b.textContent = f ? "Ausklappen" : "Einklappen"; b.setAttribute("aria-expanded", String(!f));
+    });
+  }
 
   function seriesList() {
     const out = [];
@@ -720,6 +749,10 @@ a.btn.primary { color: var(--sheet); }
       .forEach(([c, n, l]) => { const s = el("div", "stat " + c); s.append(el("b", null, String(n)), el("span", null, l)); st.append(s); });
     $("n-lec").textContent = open.length || "";
     $("n-ser").textContent = serDue.length || "";
+    $("cnt-lec").textContent = open.length ? String(open.length) : "";
+    $("cnt-ser").textContent = serDue.length ? String(serDue.length) : "";
+    $("jump-top").hidden = !(ready && tab === "lec");
+    applyFold();
 
     document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.tab === tab)));
     $("panel-lec").hidden = tab !== "lec"; $("panel-ser").hidden = tab !== "ser"; $("panel-setup").hidden = tab !== "setup";
@@ -776,9 +809,11 @@ a.btn.primary { color: var(--sheet); }
       const days = el("div", "days"); days.style.setProperty("--nd", NDAYS);
       for (let di = 0; di < NDAYS; di++) {
         const date = dateOf(wi, di);
-        const col = el("div", "day");
-        const lab = el("div", "day-l" + (sameDay(date, now) ? " today" : ""));
+        const isToday = sameDay(date, now);
+        const col = el("div", "day" + (isToday ? " today" : ""));
+        const lab = el("div", "day-l" + (isToday ? " today" : ""));
         lab.append(el("span", null, DAYS[di]), el("span", "mono", date.getDate() + "."));
+        if (isToday) lab.append(el("span", "now-tag", "heute"));
         const chips = el("div", "day-chips");
         EVENTS.filter(ev => ev.d === di).forEach(ev => {
           const k = markKey(wi, ev), s = getMark(k), name = CO[ev.c].name;
@@ -806,6 +841,13 @@ a.btn.primary { color: var(--sheet); }
           b.title = CO[x.c].name + " Serie " + x.n + ": " + serLabel(x.s);
           row.append(b);
         });
+        if (thisWeek.some(x => x.s !== "done")) {
+          const all = button("btn ok", "Alle erledigt ✓", () => {
+            const t = stamp(); thisWeek.forEach(x => { if (x.s !== "done") items["s:" + x.c + ":" + x.n] = { s: "done", at: t }; }); commit();
+          });
+          all.title = "Alle Serien von Woche " + wi + " als erledigt markieren";
+          row.append(all);
+        }
         w.append(row);
       }
       wk.append(w);
@@ -1311,7 +1353,8 @@ a.btn.primary { color: var(--sheet); }
   // ================= Start =================
   document.querySelectorAll(".tab").forEach(t => { t.onclick = () => setTab(t.dataset.tab); });
   document.querySelectorAll("[data-goto]").forEach(b => { b.onclick = () => { setTab("setup"); window.scrollTo(0, 0); }; });
-  $("jump").onclick = () => { const t = $("week" + curWeek); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  $("jump").onclick = $("jump-top").onclick = () => { const t = $("week" + curWeek); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  ["lec", "ser"].forEach(k => { $("fold-" + k).onclick = () => { fold[k] = !fold[k]; ls.set(LS_FOLD, JSON.stringify(fold)); applyFold(); }; });
   ["sem-name", "sem-prog", "sem-start", "sem-weeks"].forEach(id => { $(id).onchange = saveSem; });
   $("add-course").onclick = () => openEditor(null);
   $("start-empty").onclick = () => { if (!SEM) { items.sem = Object.assign(defaultSem(), { at: stamp() }); commit(); } openEditor(null); };
