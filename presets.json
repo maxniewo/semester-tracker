@@ -1,0 +1,300 @@
+[
+ {
+  "v": 1,
+  "name": "Maschinenbau · 1. Semester",
+  "uni": "ETH Zürich",
+  "prog": "D-MAVT · ETH",
+  "sem": {
+   "name": "HS26",
+   "start": "2026-09-14",
+   "weeks": 14
+  },
+  "courses": [
+   {
+    "id": "m1-ana",
+    "name": "Analysis I",
+    "short": "Ana",
+    "series": true,
+    "ev": [
+     {
+      "id": "m1-ana-v-mo",
+      "k": "V",
+      "d": 0,
+      "s": "12:15",
+      "e": "14:00",
+      "t": "ETA F 5"
+     },
+     {
+      "id": "m1-ana-v-mi",
+      "k": "V",
+      "d": 2,
+      "s": "08:15",
+      "e": "10:00",
+      "t": "ETA F 5"
+     },
+     {
+      "id": "m1-ana-v-fr",
+      "k": "V",
+      "d": 4,
+      "s": "08:15",
+      "e": "10:00",
+      "t": "ETA F 5"
+     },
+     {
+      "id": "m1-ana-u",
+      "k": "U",
+      "d": 4,
+      "s": "10:15",
+      "e": "12:00",
+      "t": ""
+     }
+    ]
+   },
+   {
+    "id": "m1-linalg",
+    "name": "Linear Algebra I",
+    "short": "LinAlg",
+    "series": true,
+    "ev": [
+     {
+      "id": "m1-linalg-v",
+      "k": "V",
+      "d": 1,
+      "s": "10:15",
+      "e": "12:00",
+      "t": "ETA F 5"
+     },
+     {
+      "id": "m1-linalg-u",
+      "k": "U",
+      "d": 4,
+      "s": "12:15",
+      "e": "13:00",
+      "t": ""
+     }
+    ]
+   },
+   {
+    "id": "m1-mech",
+    "name": "Mechanics I",
+    "short": "Mech",
+    "series": true,
+    "ev": [
+     {
+      "id": "m1-mech-v-mo",
+      "k": "V",
+      "d": 0,
+      "s": "10:15",
+      "e": "12:00",
+      "t": "ETA F 5"
+     },
+     {
+      "id": "m1-mech-v-di",
+      "k": "V",
+      "d": 1,
+      "s": "14:15",
+      "e": "16:00",
+      "t": "ETA F 5"
+     },
+     {
+      "id": "m1-mech-u",
+      "k": "U",
+      "d": 3,
+      "s": "08:15",
+      "e": "10:00",
+      "t": ""
+     }
+    ]
+   },
+   {
+    "id": "m1-chem",
+    "name": "Chemistry",
+    "short": "Chem",
+    "series": true,
+    "ev": [
+     {
+      "id": "m1-chem-v",
+      "k": "V",
+      "d": 3,
+      "s": "10:15",
+      "e": "12:00",
+      "t": "ETA F 5"
+     }
+    ]
+   },
+   {
+    "id": "m1-cs",
+    "name": "Computer Science I",
+    "short": "CS",
+    "series": true,
+    "ev": [
+     {
+      "id": "m1-cs-v",
+      "k": "V",
+      "d": 2,
+      "s": "12:15",
+      "e": "14:00",
+      "t": "HG E 3"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "v": 1,
+  "name": "Maschinenbau · 3. Semester",
+  "uni": "ETH Zürich",
+  "prog": "D-MAVT · ETH",
+  "sem": {
+   "name": "HS26",
+   "start": "2026-09-14",
+   "weeks": 14
+  },
+  "courses": [
+   {
+    "id": "mech",
+    "name": "Mechanics III",
+    "short": "Mech",
+    "series": true,
+    "ev": [
+     {
+      "id": "mech-v-mo",
+      "k": "V",
+      "d": 0,
+      "s": "14:00",
+      "e": "16:00",
+      "t": ""
+     },
+     {
+      "id": "mech-v-mi",
+      "k": "V",
+      "d": 2,
+      "s": "14:00",
+      "e": "16:00",
+      "t": ""
+     },
+     {
+      "id": "mech-u",
+      "k": "U",
+      "d": 3,
+      "s": "08:00",
+      "e": "10:00",
+      "t": ""
+     }
+    ]
+   },
+   {
+    "id": "ana",
+    "name": "Analysis III",
+    "short": "Ana",
+    "series": true,
+    "ev": [
+     {
+      "id": "ana-u",
+      "k": "U",
+      "d": 0,
+      "s": "",
+      "e": "",
+      "t": "Mo Abend / Di"
+     },
+     {
+      "id": "ana-v",
+      "k": "V",
+      "d": 3,
+      "s": "14:00",
+      "e": "16:00",
+      "t": ""
+     }
+    ]
+   },
+   {
+    "id": "thermo",
+    "name": "Thermodynamics I",
+    "short": "Thermo",
+    "series": true,
+    "ev": [
+     {
+      "id": "thermo-v",
+      "k": "V",
+      "d": 3,
+      "s": "10:00",
+      "e": "12:00",
+      "t": ""
+     },
+     {
+      "id": "thermo-u",
+      "k": "U",
+      "d": 4,
+      "s": "08:00",
+      "e": "10:00",
+      "t": ""
+     }
+    ]
+   },
+   {
+    "id": "cs",
+    "name": "Control Systems I",
+    "short": "Control",
+    "series": true,
+    "ev": [
+     {
+      "id": "cs-v",
+      "k": "V",
+      "d": 2,
+      "s": "16:00",
+      "e": "18:00",
+      "t": ""
+     },
+     {
+      "id": "cs-u",
+      "k": "U",
+      "d": 4,
+      "s": "10:00",
+      "e": "12:00",
+      "t": ""
+     }
+    ]
+   },
+   {
+    "id": "ee",
+    "name": "Electrical Engineering I",
+    "short": "EE",
+    "series": true,
+    "ev": [
+     {
+      "id": "ee-u",
+      "k": "U",
+      "d": 1,
+      "s": "10:00",
+      "e": "12:00",
+      "t": ""
+     },
+     {
+      "id": "ee-v",
+      "k": "V",
+      "d": 4,
+      "s": "14:00",
+      "e": "16:00",
+      "t": ""
+     }
+    ]
+   },
+   {
+    "id": "macro",
+    "name": "Macroeconomics",
+    "short": "Macro",
+    "series": false,
+    "ev": [
+     {
+      "id": "macro-v",
+      "k": "V",
+      "d": 1,
+      "s": "16:00",
+      "e": "18:00",
+      "t": ""
+     }
+    ]
+   }
+  ]
+ }
+]

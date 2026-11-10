@@ -288,6 +288,9 @@ a.btn.primary { color: var(--sheet); }
 .cnt { font-family: var(--f-mono); font-size: 15px; font-weight: 600; color: var(--red); letter-spacing: 0; }
 .day.today { background: var(--today); outline: 6px solid var(--today); }
 .now-tag { font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: .1em; margin-left: auto; }
+#edit-bar { border-color: var(--amber); border-width: 2px; }
+#edit-bar h2 { color: var(--amber); }
+#edit-msg { margin: 0; }
 .adm { border-top: 1px dashed var(--hair); padding-top: 8px; }
 .adm .btn { font-size: 13px; padding: 3px 9px; }
 .faq .sync { margin-top: 8px; }
@@ -364,6 +367,19 @@ a.btn.primary { color: var(--sheet); }
     <div class="tb-stats" id="stats"></div>
   </header>
 
+  <div class="welcome" id="edit-bar" hidden>
+    <h2>Preset bearbeiten</h2>
+    <p>Du siehst jetzt das Preset statt deiner eigenen Daten. Semester und Kurse änderst du unter Einrichten, Start und Rhythmus der Serien unter Serien. Deine eigenen Einträge bleiben unverändert und sind nach dem Speichern oder Abbrechen wieder da.</p>
+    <div class="form-grid">
+      <label class="fld"><span>Name des Presets</span><input class="inp" id="ed-p-name" type="text" maxlength="80" placeholder="z. B. Maschinenbau · 1. Semester"></label>
+      <label class="fld"><span>Hochschule</span><input class="inp" id="ed-p-uni" type="text" maxlength="60" placeholder="z. B. ETH Zürich"></label>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="edit-save" type="button">Preset speichern</button>
+      <button class="btn" id="edit-cancel" type="button">Abbrechen</button>
+    </div>
+    <p id="edit-msg" hidden></p>
+  </div>
   <div class="tabbar">
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-lec" data-tab="lec" type="button">Vorlesungen <span class="n" id="n-lec"></span></button>
@@ -491,6 +507,10 @@ a.btn.primary { color: var(--sheet); }
           </div>
         </div>
         <p class="note" id="admin-sync" hidden>Du bist über deinen Sync-Token als Betreiber angemeldet. Auf den Community-Karten stehen die Knöpfe zum Prüfen und Entfernen, auf jedem Gerät mit diesem Token.</p>
+        <div class="sync" id="admin-host" hidden>
+          <p>Als Betreiber kannst du jedes Preset in der Galerie bearbeiten oder entfernen, auch die festen. Die festen Presets liegen in der Datei <span class="mono">presets.json</span> im Repo. Nach dem Speichern dauert es etwa eine Minute, bis alle die Änderung sehen.</p>
+          <div class="sync-row"><button class="btn" id="fixed-new" type="button">+ Festes Preset anlegen</button></div>
+        </div>
         <div class="sync" id="admin-on" hidden>
           <div class="sync-row"><button class="btn" id="admin-logout" type="button">Verwaltung abmelden</button></div>
         </div>
@@ -653,7 +673,9 @@ a.btn.primary { color: var(--sheet); }
   };
   let items = {};
   try { const d = JSON.parse(ls.get(LS_DATA) || "{}"); items = (d && typeof d.items === "object" && d.items) || {}; } catch (e) { items = {}; }
-  const saveLocal = () => ls.set(LS_DATA, JSON.stringify({ v: 3, items }));
+  // Im Bearbeiten-Modus für Presets steht in "items" eine Arbeitskopie des Presets. Die wird nie gespeichert oder synchronisiert.
+  let editing = null;
+  const saveLocal = () => { if (!editing) ls.set(LS_DATA, JSON.stringify({ v: 3, items })); };
   const stamp = () => new Date().toISOString();
 
   function merge(a, b) {
@@ -1181,10 +1203,20 @@ a.btn.primary { color: var(--sheet); }
     const num = admTok() && opt.ref ? issueNum(opt.url) : 0;
     if (num) {
       const adm = el("div", "row adm");
+      adm.append(button("btn", "Bearbeiten", () => startEdit(p, { kind: "issue", num, ref: opt.ref })));
       adm.append(button("btn", opt.ok ? "Geprüft entfernen" : "Als geprüft markieren", () => adminVerify(opt.ref, num, !opt.ok)));
       adm.append(button("btn danger", adminArm === opt.key ? "Wirklich entfernen?" : "Aus Galerie entfernen", () => {
         if (adminArm !== opt.key) { adminArm = opt.key; renderPresets(); return; }
         adminRemove(opt.ref, num);
+      }));
+      card.append(adm);
+    }
+    if (host && opt.fix != null && !opt.ref) {
+      const adm = el("div", "row adm");
+      adm.append(button("btn", "Bearbeiten", () => startEdit(p, { kind: "file" })));
+      adm.append(button("btn danger", adminArm === opt.key ? "Wirklich entfernen?" : "Entfernen", () => {
+        if (adminArm !== opt.key) { adminArm = opt.key; renderPresets(); return; }
+        fixedRemove(p);
       }));
       card.append(adm);
     }
@@ -1205,11 +1237,91 @@ a.btn.primary { color: var(--sheet); }
         on = !!(repo && repo.permissions && repo.permissions.push) && (scopes.indexOf("public_repo") >= 0 || scopes.indexOf("repo") >= 0);
       } catch (e) {}
     }
-    if (on !== syncAdmin) { syncAdmin = on; adminUi(); renderPresets(); }
+    let h = on;
+    if (adminToken) { try { const repo = await adminCall("GET", ""); h = !!(repo && repo.permissions && repo.permissions.push); } catch (e) { h = false; } }
+    if (on !== syncAdmin || h !== host) { syncAdmin = on; host = h; adminUi(); renderPresets(); }
+  }
+  // Feste Presets: Datei presets.json neben der Seite. Fehlt sie, gelten die eingebauten.
+  let fixed = BUILTIN.slice(), host = false;
+  const cleanList = (a) => a.map(x => { try { return sanitizePreset(x); } catch (e) { return null; } }).filter(Boolean);
+  async function loadFixed() {
+    try {
+      const r = await fetch("presets.json?t=" + Date.now(), { cache: "no-store" }); if (!r.ok) throw new Error("HTTP " + r.status);
+      const a = await r.json(); if (!Array.isArray(a)) throw new Error("format");
+      fixed = cleanList(a); renderPresets();
+    } catch (e) {}
+  }
+  async function fileLoad() {
+    try {
+      const f = await adminCall("GET", "/contents/presets.json?ref=main");
+      const bin = atob(String(f.content || "").replace(/\s/g, "")), bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const a = JSON.parse(new TextDecoder().decode(bytes));
+      return { sha: f.sha, list: Array.isArray(a) ? cleanList(a) : [] };
+    } catch (e) { if (e.status === 404) return { sha: null, list: fixed.slice() }; throw e; }
+  }
+  async function fileSave(list, sha, message) {
+    const bytes = new TextEncoder().encode(JSON.stringify(list, null, 1) + "\n"); let bin = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    const body = { message, content: btoa(bin), branch: "main" }; if (sha) body.sha = sha;
+    await adminCall("PUT", "/contents/presets.json", body);
+  }
+  async function fixedRemove(p) {
+    if (adminBusy) return; adminBusy = true;
+    try {
+      const f = await fileLoad(), list = f.list.filter(x => x.name !== p.name);
+      await fileSave(list, f.sha, "Preset entfernt: " + p.name);
+      fixed = list; adminMsg("„" + p.name + "“ ist entfernt. Für alle sichtbar in etwa einer Minute.");
+    } catch (e) { adminFail(e); }
+    adminBusy = false; adminArm = ""; pendingKey = ""; renderPresets();
+  }
+
+  // Bearbeiten-Modus: Das Preset wird als Arbeitskopie in den Tracker geladen und mit den normalen Werkzeugen geändert.
+  function editMsg(text, bad) { const e = $("edit-msg"); e.hidden = !text; e.textContent = text || ""; e.className = text ? (bad ? "err" : "note") : ""; }
+  function startEdit(p, target) {
+    const real = items, t = stamp(); items = {};
+    items.sem = { name: p.sem.name, prog: p.prog || "", start: p.sem.start, weeks: p.sem.weeks, at: t };
+    p.courses.forEach((c, i) => {
+      items["k:" + c.id] = { name: c.name, short: c.short, on: true, series: !!c.series, ord: i, ev: c.ev, at: t };
+      if (c.ser) items["c:" + c.id] = { start: c.ser.start, count: c.series ? c.ser.count : 0, every: c.ser.every || 1, at: t };
+    });
+    editing = Object.assign({ real, orig: p.name }, target); draft = null; pendingKey = ""; adminArm = ""; openCfg.clear();
+    $("ed-p-name").value = p.name || ""; $("ed-p-uni").value = p.uni || ""; editMsg("");
+    setTab("setup"); window.scrollTo(0, 0);
+  }
+  function stopEdit() { items = editing.real; editing = null; draft = null; openCfg.clear(); setTab("setup"); }
+  let editBusy = false;
+  async function saveEdit() {
+    if (editBusy || !editing) return;
+    recompute();
+    const name = $("ed-p-name").value.trim(), uni = $("ed-p-uni").value.trim();
+    if (!name) { editMsg("Gib dem Preset einen Namen.", true); $("ed-p-name").focus(); return; }
+    if (!SEM || !C_ACT.length) { editMsg("Das Preset braucht mindestens einen aktiven Kurs.", true); return; }
+    let p; try { p = sanitizePreset(currentPreset(name, uni)); } catch (e) { editMsg("Das Preset ist unvollständig.", true); return; }
+    editBusy = true; editMsg("Speichere …");
+    try {
+      let done;
+      if (editing.kind === "issue") {
+        const code = await encodePreset(p);
+        await adminCall("PATCH", "/issues/" + editing.num, { title: "Preset: " + p.name + (uni ? " (" + uni + ")" : ""), body: "### Preset-Link\n\n" + PAGE_URL + "#p=" + code });
+        editing.ref.p = p; saveGal(); done = "„" + p.name + "“ ist gespeichert.";
+      } else {
+        const f = await fileLoad(), list = f.list, i = editing.orig ? list.findIndex(x => x.name === editing.orig) : -1;
+        if (i >= 0) list[i] = p; else list.push(p);
+        await fileSave(list, f.sha, "Preset gespeichert: " + p.name);
+        fixed = list; done = "„" + p.name + "“ ist gespeichert. Für alle sichtbar in etwa einer Minute.";
+      }
+      stopEdit(); adminMsg(done); $("sec-presets").scrollIntoView({ block: "start" });
+    } catch (e) {
+      editMsg(e.status === 401 ? "Der Token ist ungültig oder abgelaufen."
+        : e.status === 403 || e.status === 404 ? "Dafür fehlt die Berechtigung. Der Token braucht das Recht public_repo."
+        : e.status === 409 || e.status === 422 ? "Die Datei wurde gerade anderswo geändert. Versuch es nochmal." : "Das hat gerade nicht geklappt (offline?). Versuch es nochmal.", true);
+    }
+    editBusy = false;
   }
   const issueNum = (u) => { const m = /\/issues\/(\d+)$/.exec(u || ""); return m ? +m[1] : 0; };
-  function adminMsg(text, bad) { const e = $("admin-msg"); e.hidden = !text; e.textContent = text || ""; e.className = text ? (bad ? "err" : "note") : ""; }
-  function adminUi() { $("admin-off").hidden = !!admTok(); $("admin-on").hidden = !adminToken; $("admin-sync").hidden = !(syncAdmin && !adminToken); }
+  function adminMsg(text, bad) { const e = $("admin-msg"); if (text) $("admin").open = true; e.hidden = !text; e.textContent = text || ""; e.className = text ? (bad ? "err" : "note") : ""; }
+  function adminUi() { $("admin-off").hidden = !!admTok(); $("admin-on").hidden = !adminToken; $("admin-sync").hidden = !(syncAdmin && !adminToken); $("admin-host").hidden = !host; }
   async function adminCall(method, path, body) {
     const headers = { Authorization: "Bearer " + admTok(), Accept: "application/vnd.github+json" };
     if (body) headers["Content-Type"] = "application/json";
@@ -1246,17 +1358,18 @@ a.btn.primary { color: var(--sheet); }
     try {
       const repo = await adminCall("GET", "");
       ls.set(LS_ADMIN, adminToken); $("admin-token").value = "";
-      adminMsg(repo && repo.permissions && repo.permissions.push
-        ? "Angemeldet als Betreiber. Auf den Community-Karten stehen jetzt die Knöpfe zum Prüfen und Entfernen."
+      host = !!(repo && repo.permissions && repo.permissions.push);
+      adminMsg(host
+        ? "Angemeldet als Betreiber. Auf den Karten stehen jetzt die Knöpfe zum Bearbeiten, Prüfen und Entfernen."
         : "Angemeldet. Du kannst deine eigenen Presets entfernen. Prüfen und fremde Presets entfernen kann nur der Betreiber.");
-    } catch (e) { adminToken = ""; adminFail(e); }
+    } catch (e) { adminToken = ""; host = syncAdmin; adminFail(e); }
     adminUi(); renderPresets();
   }
   let galQuery = "", galLimit = 6;
   const GAL_STEP = 6;
   const norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   function galleryList() {
-    const all = BUILTIN.map((p, i) => ({ p, key: "b" + i, ok: true, by: "maxniewo", likes: 0, t: 0, url: "" }))
+    const all = fixed.map((p, i) => ({ p, key: "b" + i, ok: true, by: REPO.split("/")[0], likes: 0, t: 0, url: "", fix: i }))
       .concat(community.map((c, i) => Object.assign({ key: "c" + i, ref: c }, c)));
     const words = norm(galQuery).split(/\s+/).filter(Boolean);
     return all.filter(x => {
@@ -1330,12 +1443,13 @@ a.btn.primary { color: var(--sheet); }
 
   let galleryAsked = false;
   function renderSetup() {
-    $("welcome").hidden = !!SEM;
+    $("welcome").hidden = !!SEM || !!editing;
+    $("edit-bar").hidden = !editing; $("sec-presets").hidden = !!editing; $("sync-card").hidden = !!editing; $("incoming").hidden = !!editing;
     fillSem(false);
     renderCourseList();
     renderPresets();
     updateShare();
-    if (tab === "setup" && !galleryAsked) { galleryAsked = true; loadGallery(false); }
+    if (tab === "setup" && !galleryAsked) { galleryAsked = true; loadFixed(); loadGallery(false); }
   }
   function setTab(t) { tab = t; ls.set(LS_TAB, tab); render(); }
 
@@ -1388,7 +1502,7 @@ a.btn.primary { color: var(--sheet); }
     }
   }
   async function sync() {
-    if (!token) return;
+    if (!token || editing) return;
     if (syncing) { again = true; return; }
     syncing = true; status("", "Synchronisiere …");
     try {
@@ -1409,7 +1523,7 @@ a.btn.primary { color: var(--sheet); }
       if (again) { again = false; sync(); }
     }
   }
-  function schedulePush() { if (!token) { status("", "Lokal gespeichert (nur dieses Gerät)"); return; } clearTimeout(pushTimer); pushTimer = setTimeout(sync, 1200); }
+  function schedulePush() { if (editing) return; if (!token) { status("", "Lokal gespeichert (nur dieses Gerät)"); return; } clearTimeout(pushTimer); pushTimer = setTimeout(sync, 1200); }
 
   $("connect").onclick = async () => {
     const v = $("token").value.trim(); if (!v) { $("token").focus(); return; }
@@ -1455,7 +1569,10 @@ a.btn.primary { color: var(--sheet); }
   $("gal-more").onclick = () => { galLimit += GAL_STEP; renderPresets(); };
   $("admin-connect").onclick = adminConnect;
   $("admin-token").addEventListener("keydown", (e) => { if (e.key === "Enter") adminConnect(); });
-  $("admin-logout").onclick = () => { adminToken = ""; adminArm = ""; ls.del(LS_ADMIN); adminMsg(""); adminUi(); renderPresets(); };
+  $("admin-logout").onclick = () => { adminToken = ""; adminArm = ""; host = syncAdmin; ls.del(LS_ADMIN); adminMsg(""); adminUi(); renderPresets(); };
+  $("fixed-new").onclick = () => startEdit({ name: "", uni: "", prog: "", sem: defaultSem(), courses: [] }, { kind: "file" });
+  $("edit-save").onclick = saveEdit;
+  $("edit-cancel").onclick = stopEdit;
   adminUi();
   $("sync-jump").onclick = () => { setTab("setup"); $("sync-card").scrollIntoView({ behavior: "smooth", block: "start" }); };
   try { const s = JSON.parse(ls.get(LS_SHARE) || "{}"); $("sh-name").value = str(s.name, 80); $("sh-uni").value = str(s.uni, 60); } catch (e) {}
@@ -1475,7 +1592,8 @@ a.btn.primary { color: var(--sheet); }
   if (!SEM) tab = "setup";
   syncUi();
   render();
-  if (token) { sync(); checkSyncAdmin(); } else status("", "Lokal gespeichert (nur dieses Gerät)");
+  if (token) sync(); else status("", "Lokal gespeichert (nur dieses Gerät)");
+  checkSyncAdmin();
   readHash();
 })();
 </script>

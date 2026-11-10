@@ -22,6 +22,8 @@ Die Galerie liest alle offenen Issues dieses Repos, die einen Preset-Link enthal
 
 Als Betreiber musst du dafür nicht auf GitHub: Unter Einrichten → Presets → "Galerie verwalten" meldest du dich mit einem Token mit dem Recht `public_repo` an. Danach haben die Community-Karten Knöpfe zum Entfernen und zum Prüfen. Wer ein Preset veröffentlicht hat, kann sein eigenes auf demselben Weg entfernen.
 
+Die festen Presets oben in der Galerie stehen in der Datei `presets.json`. Als Betreiber bearbeitest du sie direkt auf der Seite: Auf der Karte "Bearbeiten" wählen, das Preset mit den normalen Werkzeugen unter Einrichten und Serien ändern und speichern. Die Seite schreibt die Datei dann ins Repo.
+
 Sortiert wird nach Likes, also nach der Anzahl 👍-Reaktionen auf dem Issue. Die Galerie zeigt zuerst sechs Presets, der Rest kommt über "Mehr anzeigen" oder die Suche.
 
 ## Daten und Privatsphäre
