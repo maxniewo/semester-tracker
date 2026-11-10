@@ -483,12 +483,14 @@ a.btn.primary { color: var(--sheet); }
         <summary>Galerie verwalten</summary>
         <p>Für den Betreiber dieser Seite und für alle, die ein eigenes Preset wieder entfernen wollen. Nach dem Anmelden erscheinen auf den Community-Karten Knöpfe zum Entfernen und zum Prüfen. Der Betreiber kann jedes Preset entfernen und als geprüft markieren, alle anderen nur ihre eigenen entfernen.</p>
         <div class="sync" id="admin-off">
-          <p>Dafür brauchst du einen GitHub-Token mit dem Recht <b>public_repo</b>: <a href="https://github.com/settings/tokens/new?scopes=public_repo&amp;description=Semester-Tracker-Galerie" target="_blank" rel="noopener">Token erstellen</a>, ganz unten auf „Generate token“ klicken und den Code hier einfügen. Das ist ein anderer Token als der für den Sync. Er bleibt nur in diesem Browser.</p>
+          <p>Dafür brauchst du einen GitHub-Token mit dem Recht <b>public_repo</b>: <a href="https://github.com/settings/tokens/new?scopes=public_repo&amp;description=Semester-Tracker-Galerie" target="_blank" rel="noopener">Token erstellen</a>, ganz unten auf „Generate token“ klicken und den Code hier einfügen. Er bleibt nur in diesem Browser.</p>
+          <p><b>Betreiber auf allen Geräten:</b> Erstell stattdessen <a href="https://github.com/settings/tokens/new?scopes=gist,public_repo&amp;description=Semester-Tracker" target="_blank" rel="noopener">einen Token mit beiden Rechten</a> (gist und public_repo) und nimm ihn unter Sync &amp; Daten als Sync-Token. Dann bist du überall, wo dein Tracker synchronisiert ist, automatisch als Betreiber angemeldet.</p>
           <div class="sync-row">
             <input id="admin-token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub-Token für die Verwaltung">
             <button class="btn primary" id="admin-connect" type="button">Anmelden</button>
           </div>
         </div>
+        <p class="note" id="admin-sync" hidden>Du bist über deinen Sync-Token als Betreiber angemeldet. Auf den Community-Karten stehen die Knöpfe zum Prüfen und Entfernen, auf jedem Gerät mit diesem Token.</p>
         <div class="sync" id="admin-on" hidden>
           <div class="sync-row"><button class="btn" id="admin-logout" type="button">Verwaltung abmelden</button></div>
         </div>
@@ -1176,7 +1178,7 @@ a.btn.primary { color: var(--sheet); }
       acts.append(a);
     }
     card.append(acts);
-    const num = adminToken && opt.ref ? issueNum(opt.url) : 0;
+    const num = admTok() && opt.ref ? issueNum(opt.url) : 0;
     if (num) {
       const adm = el("div", "row adm");
       adm.append(button("btn", opt.ok ? "Geprüft entfernen" : "Als geprüft markieren", () => adminVerify(opt.ref, num, !opt.ok)));
@@ -1190,12 +1192,26 @@ a.btn.primary { color: var(--sheet); }
   }
 
   // ---- Galerie verwalten: Presets sind Issues im Repo. Entfernen schliesst das Issue, "geprüft" ist ein Label. ----
-  let adminToken = ls.get(LS_ADMIN) || "", adminArm = "", adminBusy = false;
+  // Als Schlüssel dient ein eigener Verwaltungs-Token oder der Sync-Token, falls der auch das Recht public_repo hat.
+  let adminToken = ls.get(LS_ADMIN) || "", adminArm = "", adminBusy = false, syncAdmin = false;
+  const admTok = () => adminToken || (syncAdmin ? token : "");
+  async function checkSyncAdmin() {
+    let on = false;
+    if (token) {
+      try {
+        const r = await fetch("https://api.github.com/repos/" + REPO, { headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" }, cache: "no-store" });
+        const scopes = (r.headers.get("x-oauth-scopes") || "").split(",").map(x => x.trim());
+        const repo = r.ok ? await r.json() : null;
+        on = !!(repo && repo.permissions && repo.permissions.push) && (scopes.indexOf("public_repo") >= 0 || scopes.indexOf("repo") >= 0);
+      } catch (e) {}
+    }
+    if (on !== syncAdmin) { syncAdmin = on; adminUi(); renderPresets(); }
+  }
   const issueNum = (u) => { const m = /\/issues\/(\d+)$/.exec(u || ""); return m ? +m[1] : 0; };
   function adminMsg(text, bad) { const e = $("admin-msg"); e.hidden = !text; e.textContent = text || ""; e.className = text ? (bad ? "err" : "note") : ""; }
-  function adminUi() { $("admin-off").hidden = !!adminToken; $("admin-on").hidden = !adminToken; }
+  function adminUi() { $("admin-off").hidden = !!admTok(); $("admin-on").hidden = !adminToken; $("admin-sync").hidden = !(syncAdmin && !adminToken); }
   async function adminCall(method, path, body) {
-    const headers = { Authorization: "Bearer " + adminToken, Accept: "application/vnd.github+json" };
+    const headers = { Authorization: "Bearer " + admTok(), Accept: "application/vnd.github+json" };
     if (body) headers["Content-Type"] = "application/json";
     const r = await fetch("https://api.github.com/repos/" + REPO + path, { method, headers, body: body ? JSON.stringify(body) : undefined, cache: "no-store" });
     if (!r.ok && !(method === "DELETE" && r.status === 404)) { const e = new Error("HTTP " + r.status); e.status = r.status; throw e; }
@@ -1398,10 +1414,10 @@ a.btn.primary { color: var(--sheet); }
   $("connect").onclick = async () => {
     const v = $("token").value.trim(); if (!v) { $("token").focus(); return; }
     token = v; gistId = ""; ls.set(LS_TOKEN, token); ls.del(LS_GIST); $("token").value = "";
-    syncUi(); await sync();
+    syncUi(); await sync(); checkSyncAdmin();
   };
   $("token").addEventListener("keydown", (e) => { if (e.key === "Enter") $("connect").click(); });
-  $("disconnect").onclick = () => { token = ""; gistId = ""; ls.del(LS_TOKEN); ls.del(LS_GIST); syncUi(); status("", "Lokal gespeichert (nur dieses Gerät)"); };
+  $("disconnect").onclick = () => { token = ""; gistId = ""; ls.del(LS_TOKEN); ls.del(LS_GIST); syncUi(); status("", "Lokal gespeichert (nur dieses Gerät)"); checkSyncAdmin(); };
   $("sync-now").onclick = () => sync();
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") sync(); });
   setInterval(() => { if (document.visibilityState === "visible") sync(); }, 120000);
@@ -1459,7 +1475,7 @@ a.btn.primary { color: var(--sheet); }
   if (!SEM) tab = "setup";
   syncUi();
   render();
-  if (token) sync(); else status("", "Lokal gespeichert (nur dieses Gerät)");
+  if (token) { sync(); checkSyncAdmin(); } else status("", "Lokal gespeichert (nur dieses Gerät)");
   readHash();
 })();
 </script>
