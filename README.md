@@ -20,6 +20,8 @@ Ein Preset ist ein fertiges Setup aus Semesterdaten und Kursen, zum Beispiel "Ma
 
 Die Galerie liest alle offenen Issues dieses Repos, die einen Preset-Link enthalten. Ein Issue schliessen entfernt das Preset aus der Galerie. Issues mit dem Label `geprüft` bekommen in der Galerie einen Stempel.
 
+Als Betreiber musst du dafür nicht auf GitHub: Unter Einrichten → Presets → "Galerie verwalten" meldest du dich mit einem Token mit dem Recht `public_repo` an. Danach haben die Community-Karten Knöpfe zum Entfernen und zum Prüfen. Wer ein Preset veröffentlicht hat, kann sein eigenes auf demselben Weg entfernen.
+
 Sortiert wird nach Likes, also nach der Anzahl 👍-Reaktionen auf dem Issue. Die Galerie zeigt zuerst sechs Presets, der Rest kommt über "Mehr anzeigen" oder die Suche.
 
 ## Daten und Privatsphäre

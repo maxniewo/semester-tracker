@@ -288,6 +288,10 @@ a.btn.primary { color: var(--sheet); }
 .cnt { font-family: var(--f-mono); font-size: 15px; font-weight: 600; color: var(--red); letter-spacing: 0; }
 .day.today { background: var(--today); outline: 6px solid var(--today); }
 .now-tag { font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: .1em; margin-left: auto; }
+.adm { border-top: 1px dashed var(--hair); padding-top: 8px; }
+.adm .btn { font-size: 13px; padding: 3px 9px; }
+.faq .sync { margin-top: 8px; }
+#admin-msg { margin-top: 10px; max-width: none; }
 .seg { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .like { font-family: var(--f-mono); font-size: 13px; color: var(--ink); text-decoration: none; border: 1px solid var(--hair); padding: 3px 9px; margin-left: auto; }
 .like:hover { border-color: var(--line); }
@@ -475,6 +479,21 @@ a.btn.primary { color: var(--sheet); }
       <div class="pgrid" id="gallery"></div>
       <div class="row"><button class="btn" id="gal-more" type="button" hidden>Mehr anzeigen</button></div>
       <p class="hint">Sortiert nach Likes. Der Daumen auf einer Karte öffnet das Preset auf GitHub, dort kannst du es liken.</p>
+      <details class="faq" id="admin">
+        <summary>Galerie verwalten</summary>
+        <p>Für den Betreiber dieser Seite und für alle, die ein eigenes Preset wieder entfernen wollen. Nach dem Anmelden erscheinen auf den Community-Karten Knöpfe zum Entfernen und zum Prüfen. Der Betreiber kann jedes Preset entfernen und als geprüft markieren, alle anderen nur ihre eigenen entfernen.</p>
+        <div class="sync" id="admin-off">
+          <p>Dafür brauchst du einen GitHub-Token mit dem Recht <b>public_repo</b>: <a href="https://github.com/settings/tokens/new?scopes=public_repo&amp;description=Semester-Tracker-Galerie" target="_blank" rel="noopener">Token erstellen</a>, ganz unten auf „Generate token“ klicken und den Code hier einfügen. Das ist ein anderer Token als der für den Sync. Er bleibt nur in diesem Browser.</p>
+          <div class="sync-row">
+            <input id="admin-token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub-Token für die Verwaltung">
+            <button class="btn primary" id="admin-connect" type="button">Anmelden</button>
+          </div>
+        </div>
+        <div class="sync" id="admin-on" hidden>
+          <div class="sync-row"><button class="btn" id="admin-logout" type="button">Verwaltung abmelden</button></div>
+        </div>
+        <p id="admin-msg" hidden></p>
+      </details>
       <p class="hint" id="gal-info"></p>
       <div class="sub-h"><span>Mein Setup teilen</span></div>
       <div class="form-grid">
@@ -610,9 +629,7 @@ a.btn.primary { color: var(--sheet); }
       { id: "m1-chem", name: "Chemistry", short: "Chem", series: true, ev: [
         { id: "m1-chem-v", k: "V", d: 3, s: "10:15", e: "12:00", t: "ETA F 5" }] },
       { id: "m1-cs", name: "Computer Science I", short: "CS", series: true, ev: [
-        { id: "m1-cs-v", k: "V", d: 2, s: "12:15", e: "14:00", t: "HG E 3" }] },
-      { id: "m1-macro", name: "Principles of Macroeconomics", short: "Macro", series: false, ev: [
-        { id: "m1-macro-v", k: "V", d: 1, s: "16:15", e: "18:00", t: "ETA F 5" }] }
+        { id: "m1-cs-v", k: "V", d: 2, s: "12:15", e: "14:00", t: "HG E 3" }] }
     ]
   };
   const BUILTIN = [MAVT1, LEGACY];
@@ -626,7 +643,7 @@ a.btn.primary { color: var(--sheet); }
   //   m:w<kw>_<termin> -> { s: "missed" | "done" | null }   (kw = Kalenderwoche des Semesterstarts + Wochenindex)
   //   s:<kurs>:<n> -> { s: "wip" | "done" | null }
   const LS_DATA = "semester-tracker:data", LS_TOKEN = "semester-tracker:token", LS_GIST = "semester-tracker:gist",
-        LS_TAB = "semester-tracker:tab", LS_GAL = "semester-tracker:gallery", LS_SHARE = "semester-tracker:share", LS_FOLD = "semester-tracker:fold";
+        LS_TAB = "semester-tracker:tab", LS_GAL = "semester-tracker:gallery", LS_SHARE = "semester-tracker:share", LS_FOLD = "semester-tracker:fold", LS_ADMIN = "semester-tracker:admin";
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
@@ -1159,14 +1176,72 @@ a.btn.primary { color: var(--sheet); }
       acts.append(a);
     }
     card.append(acts);
+    const num = adminToken && opt.ref ? issueNum(opt.url) : 0;
+    if (num) {
+      const adm = el("div", "row adm");
+      adm.append(button("btn", opt.ok ? "Geprüft entfernen" : "Als geprüft markieren", () => adminVerify(opt.ref, num, !opt.ok)));
+      adm.append(button("btn danger", adminArm === opt.key ? "Wirklich entfernen?" : "Aus Galerie entfernen", () => {
+        if (adminArm !== opt.key) { adminArm = opt.key; renderPresets(); return; }
+        adminRemove(opt.ref, num);
+      }));
+      card.append(adm);
+    }
     return card;
+  }
+
+  // ---- Galerie verwalten: Presets sind Issues im Repo. Entfernen schliesst das Issue, "geprüft" ist ein Label. ----
+  let adminToken = ls.get(LS_ADMIN) || "", adminArm = "", adminBusy = false;
+  const issueNum = (u) => { const m = /\/issues\/(\d+)$/.exec(u || ""); return m ? +m[1] : 0; };
+  function adminMsg(text, bad) { const e = $("admin-msg"); e.hidden = !text; e.textContent = text || ""; e.className = text ? (bad ? "err" : "note") : ""; }
+  function adminUi() { $("admin-off").hidden = !!adminToken; $("admin-on").hidden = !adminToken; }
+  async function adminCall(method, path, body) {
+    const headers = { Authorization: "Bearer " + adminToken, Accept: "application/vnd.github+json" };
+    if (body) headers["Content-Type"] = "application/json";
+    const r = await fetch("https://api.github.com/repos/" + REPO + path, { method, headers, body: body ? JSON.stringify(body) : undefined, cache: "no-store" });
+    if (!r.ok && !(method === "DELETE" && r.status === 404)) { const e = new Error("HTTP " + r.status); e.status = r.status; throw e; }
+    return r.status === 204 ? null : r.json().catch(() => null);
+  }
+  function adminFail(e) {
+    adminMsg(e.status === 401 ? "Der Token ist ungültig oder abgelaufen. Melde die Verwaltung ab und füg einen neuen ein."
+      : e.status === 403 || e.status === 404 ? "Dafür fehlt die Berechtigung. Das geht nur als Betreiber oder beim eigenen Preset, und der Token braucht das Recht public_repo."
+      : "Das hat gerade nicht geklappt (offline?). Versuch es nochmal.", true);
+  }
+  const saveGal = () => ls.set(LS_GAL, JSON.stringify({ t: Date.now(), list: community }));
+  async function adminRemove(ref, num) {
+    if (adminBusy) return; adminBusy = true;
+    try {
+      await adminCall("PATCH", "/issues/" + num, { state: "closed" });
+      community = community.filter(c => c !== ref); saveGal(); adminMsg("„" + ref.p.name + "“ ist aus der Galerie entfernt. Auf GitHub ist das Issue geschlossen und lässt sich dort wieder öffnen.");
+    } catch (e) { adminFail(e); }
+    adminBusy = false; adminArm = ""; pendingKey = ""; renderPresets();
+  }
+  async function adminVerify(ref, num, on) {
+    if (adminBusy) return; adminBusy = true;
+    try {
+      if (on) await adminCall("POST", "/issues/" + num + "/labels", { labels: ["geprüft"] });
+      else await adminCall("DELETE", "/issues/" + num + "/labels/" + encodeURIComponent("geprüft"));
+      ref.ok = on; saveGal(); adminMsg("„" + ref.p.name + "“ ist jetzt " + (on ? "als geprüft markiert." : "nicht mehr als geprüft markiert."));
+    } catch (e) { adminFail(e); }
+    adminBusy = false; adminArm = ""; renderPresets();
+  }
+  async function adminConnect() {
+    const v = $("admin-token").value.trim(); if (!v) { $("admin-token").focus(); return; }
+    adminToken = v;
+    try {
+      const repo = await adminCall("GET", "");
+      ls.set(LS_ADMIN, adminToken); $("admin-token").value = "";
+      adminMsg(repo && repo.permissions && repo.permissions.push
+        ? "Angemeldet als Betreiber. Auf den Community-Karten stehen jetzt die Knöpfe zum Prüfen und Entfernen."
+        : "Angemeldet. Du kannst deine eigenen Presets entfernen. Prüfen und fremde Presets entfernen kann nur der Betreiber.");
+    } catch (e) { adminToken = ""; adminFail(e); }
+    adminUi(); renderPresets();
   }
   let galQuery = "", galLimit = 6;
   const GAL_STEP = 6;
   const norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   function galleryList() {
     const all = BUILTIN.map((p, i) => ({ p, key: "b" + i, ok: true, by: "maxniewo", likes: 0, t: 0, url: "" }))
-      .concat(community.map((c, i) => Object.assign({ key: "c" + i }, c)));
+      .concat(community.map((c, i) => Object.assign({ key: "c" + i, ref: c }, c)));
     const words = norm(galQuery).split(/\s+/).filter(Boolean);
     return all.filter(x => {
       if (!words.length) return true;
@@ -1362,6 +1437,10 @@ a.btn.primary { color: var(--sheet); }
   $("gal-reload").onclick = () => loadGallery(true);
   $("gal-q").oninput = () => { galQuery = $("gal-q").value; galLimit = GAL_STEP; pendingKey = ""; renderPresets(); };
   $("gal-more").onclick = () => { galLimit += GAL_STEP; renderPresets(); };
+  $("admin-connect").onclick = adminConnect;
+  $("admin-token").addEventListener("keydown", (e) => { if (e.key === "Enter") adminConnect(); });
+  $("admin-logout").onclick = () => { adminToken = ""; adminArm = ""; ls.del(LS_ADMIN); adminMsg(""); adminUi(); renderPresets(); };
+  adminUi();
   $("sync-jump").onclick = () => { setTab("setup"); $("sync-card").scrollIntoView({ behavior: "smooth", block: "start" }); };
   try { const s = JSON.parse(ls.get(LS_SHARE) || "{}"); $("sh-name").value = str(s.name, 80); $("sh-uni").value = str(s.uni, 60); } catch (e) {}
   ["sh-name", "sh-uni"].forEach(id => { $(id).oninput = () => { ls.set(LS_SHARE, JSON.stringify({ name: $("sh-name").value, uni: $("sh-uni").value })); updateShare(); }; });
