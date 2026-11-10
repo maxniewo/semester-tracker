@@ -7,7 +7,7 @@ Behalte den Überblick, welche Vorlesungen und Übungen du verpasst hast, was du
 ## So funktioniert es
 
 - **Vorlesungen:** Jede Semesterwoche zeigt deine Termine. Tippen wechselt zwischen besucht, verpasst und nachgeholt. Oben steht, was noch offen ist.
-- **Serien:** Pro Kurs gibt es nummerierte Serien mit den Zuständen noch nicht gemacht, in Bearbeitung und erledigt. Pro Kurs stellst du ein, in welcher Woche Serie 1 kam.
+- **Serien:** Pro Kurs gibt es nummerierte Serien mit den Zuständen noch nicht gemacht, in Bearbeitung und erledigt. Pro Kurs stellst du ein, in welcher Woche Serie 1 kam. Serien können jede Woche oder alle 2 Wochen kommen.
 - **Einrichten:** Semesterstart und Anzahl Wochen festlegen, Kurse mit ihren Terminen anlegen, Kurse abwählen, die du nicht belegst.
 
 ## Presets
@@ -19,6 +19,8 @@ Ein Preset ist ein fertiges Setup aus Semesterdaten und Kursen, zum Beispiel "Ma
 - **Veröffentlichen:** "In Galerie veröffentlichen" öffnet hier ein ausgefülltes Issue. Nach dem Absenden erscheint das Preset in der Galerie.
 
 Die Galerie liest alle offenen Issues dieses Repos, die einen Preset-Link enthalten. Ein Issue schliessen entfernt das Preset aus der Galerie. Issues mit dem Label `geprüft` bekommen in der Galerie einen Stempel.
+
+Sortiert wird nach Likes, also nach der Anzahl 👍-Reaktionen auf dem Issue. Die Galerie zeigt zuerst sechs Presets, der Rest kommt über "Mehr anzeigen" oder die Suche.
 
 ## Daten und Privatsphäre
 

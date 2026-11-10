@@ -279,6 +279,16 @@ a.btn.primary { color: var(--sheet); }
 .pcard .sub { color: var(--ink-2); font-family: var(--f-mono); font-size: 12px; overflow-wrap: anywhere; }
 .pcard .list { font-size: 13.5px; overflow-wrap: anywhere; }
 .stamp { font-family: var(--f-display); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--green); border: 1.5px solid var(--green); padding: 0 6px; display: inline-block; transform: rotate(-3deg); }
+.seg { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.like { font-family: var(--f-mono); font-size: 13px; color: var(--ink); text-decoration: none; border: 1px solid var(--hair); padding: 3px 9px; margin-left: auto; }
+.like:hover { border-color: var(--line); }
+.steps li { padding-left: 2px; }
+.steps b, .faq b { color: var(--ink); font-weight: 600; }
+.faq { border-top: 1px dashed var(--hair); padding-top: 10px; }
+.faq summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; }
+.faq p { margin: 8px 0 0; color: var(--ink-2); font-size: 14px; max-width: 72ch; }
+.linkish { border: 0; background: none; cursor: pointer; padding: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; }
+.linkish:hover #sync-short { text-decoration: underline; }
 .welcome { border: 1.5px solid var(--line); background: var(--sheet); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
 .welcome h2 { font-size: 26px; }
 .welcome p { margin: 0; max-width: 70ch; }
@@ -407,7 +417,7 @@ a.btn.primary { color: var(--sheet); }
     <div class="welcome" id="welcome" hidden>
       <h2>Willkommen</h2>
       <p>Der Semester Tracker zeigt dir jede Woche deines Semesters. Du markierst, welche Vorlesungen und Übungen du verpasst hast, und hakst ab, was du nachgeholt hast. Dazu kommen die Serien pro Fach.</p>
-      <p>Starte mit einem Preset aus der Galerie oder leg deine Kurse selbst an. Alles wird nur in deinem Browser gespeichert, ein Konto brauchst du nicht.</p>
+      <p>Starte mit einem Preset aus der Galerie oder leg deine Kurse selbst an. Alles wird in deinem Browser gespeichert, ein Konto brauchst du nicht. Wenn du Handy und Laptop synchron halten willst, steht unten unter Sync &amp; Daten, wie das geht.</p>
       <div class="row">
         <button class="btn primary" id="goto-presets" type="button">Preset auswählen</button>
         <button class="btn" id="start-empty" type="button">Eigene Kurse anlegen</button>
@@ -439,7 +449,10 @@ a.btn.primary { color: var(--sheet); }
       <div class="card-top"><h2><span class="mk">C</span>Presets</h2></div>
       <p class="hint">Ein Preset ist ein fertiges Setup aus Semesterdaten und Kursen, zum Beispiel für einen Studiengang und ein Semester. Übernimm eins und wähl danach unter Kurse ab, was du nicht belegst.</p>
       <div class="sub-h"><span>Galerie</span><button class="linkbtn" id="gal-reload" type="button">neu laden</button></div>
+      <input class="inp" id="gal-q" type="search" placeholder="Suchen nach Studiengang, Hochschule oder Kurs" aria-label="Presets durchsuchen" autocomplete="off">
       <div class="pgrid" id="gallery"></div>
+      <div class="row"><button class="btn" id="gal-more" type="button" hidden>Mehr anzeigen</button></div>
+      <p class="hint">Sortiert nach Likes. Der Daumen auf einer Karte öffnet das Preset auf GitHub, dort kannst du es liken.</p>
       <p class="hint" id="gal-info"></p>
       <div class="sub-h"><span>Mein Setup teilen</span></div>
       <div class="form-grid">
@@ -460,21 +473,33 @@ a.btn.primary { color: var(--sheet); }
         <span class="foot"><i class="led" id="led"></i><span id="saveinfo">Lokal gespeichert</span></span>
       </div>
       <div class="sync" id="sync-setup">
-        <p class="hint">Ohne Sync liegen deine Einträge nur in diesem Browser. Für mehrere Geräte kannst du sie in einem privaten Gist auf deinem GitHub-Konto speichern.</p>
-        <ol>
-          <li>Auf GitHub einen Token mit dem Recht <b>gist</b> erstellen: <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Semester-Tracker" target="_blank" rel="noopener">Token erstellen</a> (Ablaufdatum z.&nbsp;B. „No expiration“ oder Semesterende).</li>
-          <li>Token hier einfügen und verbinden. Die Seite legt einen privaten Gist an und speichert dort deine Einträge.</li>
-          <li>Auf jedem weiteren Gerät denselben Token einfügen. Fertig, alles bleibt synchron.</li>
+        <p class="hint">Deine Einträge liegen zuerst nur in diesem Browser. Mit Sync siehst du auf Handy und Laptop denselben Stand. Gespeichert wird in deinem eigenen GitHub-Konto, in einer privaten Datei (Gist), die nur du sehen kannst. Das Einrichten dauert etwa zwei Minuten.</p>
+        <ol class="steps">
+          <li><b>GitHub-Konto.</b> Falls du noch keins hast, kannst du <a href="https://github.com/signup" target="_blank" rel="noopener">kostenlos eins anlegen</a>.</li>
+          <li><b>Token erstellen.</b> Ein Token ist ein Schlüssel, mit dem diese Seite deine Datei lesen und schreiben darf. <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Semester-Tracker" target="_blank" rel="noopener">Öffne diese GitHub-Seite</a>, das Recht „gist“ ist dort schon angekreuzt. Wähl bei „Expiration“ am besten „No expiration“ und klick ganz unten auf „Generate token“.</li>
+          <li><b>Token kopieren.</b> GitHub zeigt dir jetzt einen Code, der mit <span class="mono">ghp_</span> beginnt. Er wird nur dieses eine Mal angezeigt. Kopier ihn und heb ihn auf, zum Beispiel im Passwort-Manager.</li>
+          <li><b>Hier einfügen</b> und auf „Verbinden“ klicken. Ab dann wird jede Änderung automatisch gesichert.</li>
+          <li><b>Weitere Geräte.</b> Öffne diese Seite auf dem anderen Gerät, geh zu Einrichten → Sync &amp; Daten und füg denselben Token ein. Deine Einträge erscheinen sofort.</li>
         </ol>
         <div class="sync-row">
           <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub-Token">
           <button class="btn primary" id="connect" type="button">Verbinden</button>
         </div>
       </div>
-      <div class="sync-row" id="sync-on" hidden>
-        <button class="btn" id="sync-now" type="button">Jetzt synchronisieren</button>
-        <button class="btn" id="disconnect" type="button">Sync auf diesem Gerät trennen</button>
+      <div class="sync" id="sync-on" hidden>
+        <p class="hint">Sync ist an. Jede Änderung wird automatisch in deinem privaten Gist gesichert. Für ein weiteres Gerät öffnest du diese Seite dort, gehst zu Einrichten → Sync &amp; Daten und fügst denselben Token ein.</p>
+        <div class="sync-row">
+          <button class="btn" id="sync-now" type="button">Jetzt synchronisieren</button>
+          <button class="btn" id="disconnect" type="button">Sync auf diesem Gerät trennen</button>
+        </div>
       </div>
+      <details class="faq">
+        <summary>Fragen zum Sync</summary>
+        <p><b>Was darf der Token?</b> Nur deine Gists lesen und schreiben. Auf deine Repos und dein Konto hat er keinen Zugriff. Er bleibt in diesem Browser gespeichert und wird nur an GitHub geschickt.</p>
+        <p><b>Token verloren oder abgelaufen?</b> Erstell einen neuen und füg ihn ein. Deine Daten bleiben erhalten, die Seite findet die Datei in deinem Konto wieder.</p>
+        <p><b>Auf zwei Geräten gleichzeitig geändert?</b> Pro Eintrag gewinnt die neuere Änderung, es geht nichts anderes verloren.</p>
+        <p><b>Lieber ohne GitHub?</b> Mit „Backup herunterladen“ und „Backup importieren“ bringst du deinen Stand von Hand auf ein anderes Gerät.</p>
+      </details>
       <div class="sync-row">
         <button class="btn" id="export" type="button">Backup herunterladen</button>
         <button class="btn" id="import-btn" type="button">Backup importieren</button>
@@ -485,7 +510,7 @@ a.btn.primary { color: var(--sheet); }
 
   <div class="colophon">
     <span>Massstab 1:1</span>
-    <span class="foot"><i class="led" id="led2"></i><span id="sync-short">Sync aus</span></span>
+    <button class="foot linkish" id="sync-jump" type="button" title="Zu Sync &amp; Daten"><i class="led" id="led2"></i><span id="sync-short">Sync aus</span></button>
     <a id="repo-link" href="https://github.com/maxniewo/semester-tracker" target="_blank" rel="noopener">Quellcode auf GitHub</a>
   </div>
 </div>
@@ -548,13 +573,34 @@ a.btn.primary { color: var(--sheet); }
     ]
   };
   const LEGACY_AT = "2026-09-14T00:00:00.000Z";
+  const MAVT1 = {
+    v: 1, name: "Maschinenbau · 1. Semester", uni: "ETH Zürich", prog: "D-MAVT · ETH",
+    sem: { name: "HS26", start: "2026-09-14", weeks: 14 },
+    courses: [
+      { id: "m1-ana", name: "Analysis I", short: "Ana", series: true, ev: [
+        { id: "m1-ana-v-mo", k: "V", d: 0, s: "12:15", e: "14:00", t: "ETA F 5" }, { id: "m1-ana-v-mi", k: "V", d: 2, s: "08:15", e: "10:00", t: "ETA F 5" },
+        { id: "m1-ana-v-fr", k: "V", d: 4, s: "08:15", e: "10:00", t: "ETA F 5" }, { id: "m1-ana-u", k: "U", d: 4, s: "10:15", e: "12:00", t: "" }] },
+      { id: "m1-linalg", name: "Linear Algebra I", short: "LinAlg", series: true, ev: [
+        { id: "m1-linalg-v", k: "V", d: 1, s: "10:15", e: "12:00", t: "ETA F 5" }, { id: "m1-linalg-u", k: "U", d: 4, s: "12:15", e: "13:00", t: "" }] },
+      { id: "m1-mech", name: "Mechanics I", short: "Mech", series: true, ev: [
+        { id: "m1-mech-v-mo", k: "V", d: 0, s: "10:15", e: "12:00", t: "ETA F 5" }, { id: "m1-mech-v-di", k: "V", d: 1, s: "14:15", e: "16:00", t: "ETA F 5" },
+        { id: "m1-mech-u", k: "U", d: 3, s: "08:15", e: "10:00", t: "" }] },
+      { id: "m1-chem", name: "Chemistry", short: "Chem", series: true, ev: [
+        { id: "m1-chem-v", k: "V", d: 3, s: "10:15", e: "12:00", t: "ETA F 5" }] },
+      { id: "m1-cs", name: "Computer Science I", short: "CS", series: true, ev: [
+        { id: "m1-cs-v", k: "V", d: 2, s: "12:15", e: "14:00", t: "HG E 3" }] },
+      { id: "m1-macro", name: "Principles of Macroeconomics", short: "Macro", series: false, ev: [
+        { id: "m1-macro-v", k: "V", d: 1, s: "16:15", e: "18:00", t: "ETA F 5" }] }
+    ]
+  };
+  const BUILTIN = [MAVT1, LEGACY];
   const LEGACY_RE = /^(m:w\d+_(mech|ana|thermo|cs|ee|macro)-[a-z-]+|s:(mech|ana|thermo|cs|ee|macro):\d+|c:(mech|ana|thermo|cs|ee|macro))$/;
 
   // ================= Daten =================
   // items: key -> { ..., at }   (at = Zeitstempel; beim Abgleich zwischen Geräten gewinnt pro Schlüssel der neuere Eintrag)
   //   sem          -> { name, prog, start: "JJJJ-MM-TT" (Montag), weeks }
   //   k:<kurs>     -> { name, short, on, series, ord, ev: [{ id, k: "V"|"U", d: 0..5, s, e, t }], del }
-  //   c:<kurs>     -> { start: Woche von Serie 1, count: Anzahl Serien | null }
+  //   c:<kurs>     -> { start: Woche von Serie 1, count: Anzahl Serien | null, every: 1 = jede Woche, 2 = alle 2 Wochen }
   //   m:w<kw>_<termin> -> { s: "missed" | "done" | null }   (kw = Kalenderwoche des Semesterstarts + Wochenindex)
   //   s:<kurs>:<n> -> { s: "wip" | "done" | null }
   const LS_DATA = "semester-tracker:data", LS_TOKEN = "semester-tracker:token", LS_GIST = "semester-tracker:gist",
@@ -619,11 +665,14 @@ a.btn.primary { color: var(--sheet); }
 
   function getMark(k) { const x = items["m:" + k]; return x ? x.s : null; }
   function getSer(c, n) { const x = items["s:" + c + ":" + n]; return x ? x.s : null; }
+  // So viele Serien passen ab Woche "start" im Rhythmus "every" ins Semester (die letzte Woche bleibt frei)
+  const defCount = (start, every) => Math.max(0, Math.floor((NWEEKS - 1 - start) / every) + 1);
   function cfg(c) {
     const x = items["c:" + c] || {}, k = items["k:" + c];
     const start = clamp(parseInt(x.start, 10) || 1, 1, NWEEKS);
-    const count = x.count != null ? clamp(parseInt(x.count, 10) || 0, 0, 30) : (k && k.series ? Math.max(0, NWEEKS - start) : 0);
-    return { start, count };
+    const every = clamp(parseInt(x.every, 10) || 1, 1, 4);
+    const count = x.count != null ? clamp(parseInt(x.count, 10) || 0, 0, 30) : (k && k.series ? defCount(start, every) : 0);
+    return { start, count, every };
   }
   function commit() { saveLocal(); render(); schedulePush(); }
   function setItem(key, val) { items[key] = Object.assign({}, val, { at: stamp() }); commit(); }
@@ -643,8 +692,8 @@ a.btn.primary { color: var(--sheet); }
   function seriesList() {
     const out = [];
     C_ACT.forEach(co => {
-      const { start, count } = cfg(co.id);
-      for (let n = 1; n <= count; n++) out.push({ c: co.id, n, w: start + n - 1, s: getSer(co.id, n) });
+      const { start, count, every } = cfg(co.id);
+      for (let n = 1; n <= count; n++) out.push({ c: co.id, n, w: start + (n - 1) * every, s: getSer(co.id, n) });
     });
     return out;
   }
@@ -795,12 +844,12 @@ a.btn.primary { color: var(--sheet); }
   function renderCourses() {
     const host = $("courses"); host.replaceChildren();
     C_ACT.forEach(co => {
-      const { start, count } = cfg(co.id);
+      const { start, count, every } = cfg(co.id);
       const card = el("article", "course");
       const h = el("div", "course-h");
       if (!count && !openCfg.has(co.id)) {
         h.append(el("h3", null, co.name), el("span", "prog", "keine Serien"));
-        h.append(button("edit", "Serien hinzufügen", () => { openCfg.add(co.id); setItem("c:" + co.id, { start, count: Math.max(1, NWEEKS - start) }); }));
+        h.append(button("edit", "Serien hinzufügen", () => { openCfg.add(co.id); setItem("c:" + co.id, { start, count: Math.max(1, defCount(start, every)), every }); }));
         card.append(h); host.append(card); return;
       }
       let nd = 0, nw = 0; for (let n = 1; n <= count; n++) { const s = getSer(co.id, n); if (s === "done") nd++; if (s === "wip") nw++; }
@@ -817,16 +866,23 @@ a.btn.primary { color: var(--sheet); }
         const c = el("div", "cfg");
         c.append(stepper("Serie 1 kam in Woche", start, 1, NWEEKS, (v) => {
           const cur = items["c:" + co.id] || {};
-          setItem("c:" + co.id, { start: v, count: cur.count != null ? cur.count : null });
+          setItem("c:" + co.id, { start: v, count: cur.count != null ? cur.count : null, every });
         }));
-        c.append(stepper("Anzahl Serien", count, 0, 30, (v) => setItem("c:" + co.id, { start, count: v })));
-        c.append(el("div", "hint", "Serie n wird Woche " + start + " + (n − 1) zugeordnet. Die Nummern bleiben, nur die Zuordnung zu den Wochen verschiebt sich."));
+        c.append(stepper("Anzahl Serien", count, 0, 30, (v) => setItem("c:" + co.id, { start, count: v, every })));
+        const seg = el("div", "seg"); seg.append(el("span", null, "Rhythmus"));
+        [[1, "jede Woche"], [2, "alle 2 Wochen"]].forEach(([v, t]) => {
+          const b = button("filter", t, () => { if (every !== v) setItem("c:" + co.id, { start, count: Math.max(1, defCount(start, v)), every: v }); });
+          b.setAttribute("aria-pressed", String(every === v)); seg.append(b);
+        });
+        c.append(seg);
+        const wks = []; for (let n = 1; n <= Math.min(count, 4); n++) wks.push(start + (n - 1) * every);
+        c.append(el("div", "hint", "Die Serien fallen auf Woche " + wks.join(", ") + (count > 4 ? " und so weiter" : "") + ". Die Nummern bleiben, nur die Zuordnung zu den Wochen verschiebt sich."));
         card.append(c);
       }
 
       const tiles = el("div", "tiles");
       for (let n = 1; n <= count; n++) {
-        const w = start + n - 1, s = getSer(co.id, n);
+        const w = start + (n - 1) * every, s = getSer(co.id, n);
         let cls = "tile";
         if (s) cls += " " + s; else if (w > curWeek) cls += " future"; else if (w === curWeek) cls += " now"; else cls += " late";
         const t = button(cls, null, () => setItem("s:" + co.id + ":" + n, { s: NEXT_SER(s) }));
@@ -893,8 +949,8 @@ a.btn.primary { color: var(--sheet); }
       ev: draft.ev.map(e => ({ id: e.id, k: e.k, d: e.d, s: e.s, e: e.e, t: e.t.trim().slice(0, 24) })), at: t
     };
     const cur = items["c:" + id], g = cfg(id);
-    if (draft.series && cur && cur.count === 0) items["c:" + id] = { start: g.start, count: null, at: t };
-    if (!draft.series && g.count > 0) items["c:" + id] = { start: g.start, count: 0, at: t };
+    if (draft.series && cur && cur.count === 0) items["c:" + id] = { start: g.start, count: null, every: g.every, at: t };
+    if (!draft.series && g.count > 0) items["c:" + id] = { start: g.start, count: 0, every: g.every, at: t };
     draft = null; edErr = ""; commit();
   }
 
@@ -956,7 +1012,7 @@ a.btn.primary { color: var(--sheet); }
       cb.onchange = () => { items["k:" + co.id] = Object.assign({}, items["k:" + co.id], { on: cb.checked, at: stamp() }); notice = ""; commit(); };
       const mid = el("label"); mid.htmlFor = cb.id; mid.style.minWidth = "0"; mid.style.cursor = "pointer";
       const nv = co.ev.filter(e => e.k !== "U").length, nu = co.ev.length - nv, ns = cfg(co.id).count;
-      const parts = []; if (nv) parts.push(nv + " V"); if (nu) parts.push(nu + " U"); if (ns) parts.push(ns + " Serien"); if (!co.on) parts.push("abgewählt");
+      const parts = []; if (nv) parts.push(nv + " V"); if (nu) parts.push(nu + " U"); if (ns) parts.push(ns + " Serien" + (cfg(co.id).every === 2 ? " (alle 2 Wochen)" : "")); if (!co.on) parts.push("abgewählt");
       mid.append(el("div", "t", co.name), el("div", "sub", parts.join(" · ") || "keine Termine"));
       r.append(cb, mid, button("btn", "Bearbeiten", () => openEditor(co)));
       host.append(r);
@@ -989,7 +1045,7 @@ a.btn.primary { color: var(--sheet); }
         ev.push({ id: eid, k: e.k === "U" ? "U" : "V", d: clamp(parseInt(e.d, 10) || 0, 0, 5), s: tm(e.s), e: tm(e.e), t: str(e.t, 24) });
       });
       const o = { id, name, short: str(c.short, 10) || name.slice(0, 6), series: !!c.series, ev };
-      if (c.ser && typeof c.ser === "object") o.ser = { start: clamp(parseInt(c.ser.start, 10) || 1, 1, 30), count: clamp(parseInt(c.ser.count, 10) || 0, 0, 30) };
+      if (c.ser && typeof c.ser === "object") o.ser = { start: clamp(parseInt(c.ser.start, 10) || 1, 1, 30), count: clamp(parseInt(c.ser.count, 10) || 0, 0, 30), every: clamp(parseInt(c.ser.every, 10) || 1, 1, 4) };
       out.courses.push(o);
     });
     if (!out.courses.length) throw new Error("format");
@@ -1017,7 +1073,7 @@ a.btn.primary { color: var(--sheet); }
 
   function currentPreset(name, uni) {
     return { v: 1, name, uni, prog: SEM.prog || "", sem: { name: SEM.name, start: ymd(START), weeks: NWEEKS },
-      courses: C_ACT.map(co => { const g = cfg(co.id); return { id: co.id, name: co.name, short: co.short, series: g.count > 0, ser: { start: g.start, count: g.count },
+      courses: C_ACT.map(co => { const g = cfg(co.id); return { id: co.id, name: co.name, short: co.short, series: g.count > 0, ser: { start: g.start, count: g.count, every: g.every },
         ev: co.ev.map(e => ({ id: e.id, k: e.k === "U" ? "U" : "V", d: clamp(e.d | 0, 0, 5), s: e.s || "", e: e.e || "", t: e.t || "" })) }; }) };
   }
   function applyPreset(p, mode) {
@@ -1029,7 +1085,7 @@ a.btn.primary { color: var(--sheet); }
     let ord = mode === "replace" ? 0 : C_ALL.reduce((m, c) => Math.max(m, c.ord), -1) + 1;
     p.courses.forEach(c => {
       items["k:" + c.id] = { name: c.name, short: c.short, on: true, series: !!c.series, ord: ord++, ev: c.ev, at: t };
-      if (c.ser) items["c:" + c.id] = { start: c.ser.start, count: c.series ? c.ser.count : 0, at: t };
+      if (c.ser) items["c:" + c.id] = { start: c.ser.start, count: c.series ? c.ser.count : 0, every: c.ser.every || 1, at: t };
     });
     draft = null; pendingKey = ""; notice = "Preset „" + p.name + "“ übernommen. Wähl jetzt ab, was du nicht belegst.";
     if (incoming === p) { incoming = null; clearHash(); }
@@ -1055,36 +1111,63 @@ a.btn.primary { color: var(--sheet); }
     }
     acts.append(button("btn primary", "Übernehmen", () => { if (SEM && C_ALL.length) { pendingKey = opt.key; renderPresets(); } else applyPreset(p, "replace"); }));
     if (opt.dismiss) acts.append(button("btn", "Verwerfen", opt.dismiss));
-    if (opt.url) { const a = el("a", "linkbtn", "auf GitHub ansehen"); a.href = opt.url; a.target = "_blank"; a.rel = "noopener"; acts.append(a); }
+    if (opt.url) {
+      const a = el("a", "like", "👍 " + (opt.likes || 0)); a.href = opt.url; a.target = "_blank"; a.rel = "noopener";
+      a.title = "Gefällt " + (opt.likes || 0) + " Leuten. Öffnet das Preset auf GitHub, dort kannst du mit dem Daumen liken."; a.setAttribute("aria-label", a.title);
+      acts.append(a);
+    }
     card.append(acts);
     return card;
+  }
+  let galQuery = "", galLimit = 6;
+  const GAL_STEP = 6;
+  const norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  function galleryList() {
+    const all = BUILTIN.map((p, i) => ({ p, key: "b" + i, ok: true, by: "maxniewo", likes: 0, t: 0, url: "" }))
+      .concat(community.map((c, i) => Object.assign({ key: "c" + i }, c)));
+    const words = norm(galQuery).split(/\s+/).filter(Boolean);
+    return all.filter(x => {
+      if (!words.length) return true;
+      const hay = norm([x.p.name, x.p.uni, x.p.prog, x.p.sem.name, x.by].concat(x.p.courses.map(c => c.name)).join(" "));
+      return words.every(w => hay.indexOf(w) >= 0);
+    }).sort((a, b) => (b.likes - a.likes) || (Number(b.ok) - Number(a.ok)) || (b.t - a.t));
   }
   function renderPresets() {
     const inc = $("incoming"); inc.replaceChildren();
     if (incoming) inc.append(presetCard(incoming, { key: "incoming", hl: true, label: "Geteiltes Preset", dismiss: () => { incoming = null; clearHash(); renderPresets(); } }));
     else if (incomingErr) inc.append(el("div", "err", incomingErr));
     const g = $("gallery"); g.replaceChildren();
-    g.append(presetCard(LEGACY, { key: "builtin", ok: true, by: "maxniewo" }));
-    community.forEach((c, i) => g.append(presetCard(c.p, { key: "c" + i, ok: c.ok, by: c.by, url: c.url })));
-    $("gal-info").textContent = galState === "loading" ? "Lade Community-Presets …"
+    const list = galleryList(), shown = list.slice(0, galLimit), rest = list.length - shown.length;
+    shown.forEach(x => g.append(presetCard(x.p, x)));
+    const more = $("gal-more"); more.hidden = rest <= 0;
+    more.textContent = "Mehr anzeigen (" + rest + (rest === 1 ? " weiteres)" : " weitere)");
+    const note = galState === "loading" ? "Lade Community-Presets …"
       : galState === "err" ? "Community-Presets konnten gerade nicht geladen werden."
       : galState === "ok" && !community.length ? "Noch keine Community-Presets. Teil deins als erstes." : "";
+    $("gal-info").textContent = (!list.length ? "Keine Treffer für „" + galQuery.trim() + "“. " : "") + note;
   }
   async function loadGallery(force) {
     let cached = null; try { cached = JSON.parse(ls.get(LS_GAL) || "null"); } catch (e) {}
-    const fromCache = () => (cached && Array.isArray(cached.list) ? cached.list : []).map(c => { try { return { p: sanitizePreset(c.p), by: str(c.by, 40), ok: !!c.ok, url: ghUrl(c.url) }; } catch (e) { return null; } }).filter(Boolean);
+    const fromCache = () => (cached && Array.isArray(cached.list) ? cached.list : []).map(c => {
+      try { return { p: sanitizePreset(c.p), by: str(c.by, 40), ok: !!c.ok, url: ghUrl(c.url), likes: clamp(parseInt(c.likes, 10) || 0, 0, 1e6), t: +c.t || 0 }; } catch (e) { return null; }
+    }).filter(Boolean);
     if (!force && cached && Date.now() - cached.t < 30 * 60e3) { community = fromCache(); galState = "ok"; renderPresets(); return; }
     galState = "loading"; renderPresets();
     try {
-      const r = await fetch("https://api.github.com/repos/" + REPO + "/issues?state=open&per_page=100", { headers: { Accept: "application/vnd.github+json" } });
-      if (!r.ok) throw new Error("HTTP " + r.status);
       const out = [];
-      for (const is of await r.json()) {
-        if (!is || is.pull_request) continue;
-        const m = CODE_RE.exec(typeof is.body === "string" ? is.body : ""); if (!m) continue;
-        let p = null; try { p = await decodePreset(m[1]); } catch (e) { continue; }
-        out.push({ p, by: str(is.user && is.user.login, 40), url: ghUrl(is.html_url),
-                   ok: Array.isArray(is.labels) && is.labels.some(l => /^(geprüft|geprueft|verified)$/i.test(l && l.name || "")) });
+      for (let page = 1; page <= 3; page++) {
+        const r = await fetch("https://api.github.com/repos/" + REPO + "/issues?state=open&per_page=100&page=" + page, { headers: { Accept: "application/vnd.github+json" } });
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        const list = await r.json();
+        for (const is of list) {
+          if (!is || is.pull_request) continue;
+          const m = CODE_RE.exec(typeof is.body === "string" ? is.body : ""); if (!m) continue;
+          let p = null; try { p = await decodePreset(m[1]); } catch (e) { continue; }
+          out.push({ p, by: str(is.user && is.user.login, 40), url: ghUrl(is.html_url),
+                     likes: clamp(parseInt(is.reactions && is.reactions["+1"], 10) || 0, 0, 1e6), t: Date.parse(is.created_at) || 0,
+                     ok: Array.isArray(is.labels) && is.labels.some(l => /^(geprüft|geprueft|verified)$/i.test(l && l.name || "")) });
+        }
+        if (list.length < 100) break;
       }
       community = out; galState = "ok"; ls.set(LS_GAL, JSON.stringify({ t: Date.now(), list: out }));
     } catch (e) { community = fromCache(); galState = "err"; }
@@ -1131,7 +1214,7 @@ a.btn.primary { color: var(--sheet); }
 
   function status(kind, text) {
     $("led").className = "led " + (kind || ""); $("saveinfo").textContent = text;
-    $("led2").className = "led " + (token ? (kind || "") : ""); $("sync-short").textContent = !token ? "Sync aus" : kind === "warn" ? "Sync-Fehler" : "Sync an";
+    $("led2").className = "led " + (token ? (kind || "") : ""); $("sync-short").textContent = !token ? "Sync aus · einrichten" : kind === "warn" ? "Sync-Fehler" : "Sync an";
   }
   function syncUi() { $("sync-setup").hidden = !!token; $("sync-on").hidden = !token; }
 
@@ -1234,6 +1317,9 @@ a.btn.primary { color: var(--sheet); }
   $("start-empty").onclick = () => { if (!SEM) { items.sem = Object.assign(defaultSem(), { at: stamp() }); commit(); } openEditor(null); };
   $("goto-presets").onclick = () => $("sec-presets").scrollIntoView({ behavior: "smooth", block: "start" });
   $("gal-reload").onclick = () => loadGallery(true);
+  $("gal-q").oninput = () => { galQuery = $("gal-q").value; galLimit = GAL_STEP; pendingKey = ""; renderPresets(); };
+  $("gal-more").onclick = () => { galLimit += GAL_STEP; renderPresets(); };
+  $("sync-jump").onclick = () => { setTab("setup"); $("sync-card").scrollIntoView({ behavior: "smooth", block: "start" }); };
   try { const s = JSON.parse(ls.get(LS_SHARE) || "{}"); $("sh-name").value = str(s.name, 80); $("sh-uni").value = str(s.uni, 60); } catch (e) {}
   ["sh-name", "sh-uni"].forEach(id => { $(id).oninput = () => { ls.set(LS_SHARE, JSON.stringify({ name: $("sh-name").value, uni: $("sh-uni").value })); updateShare(); }; });
   $("sh-link").onfocus = () => $("sh-link").select();
